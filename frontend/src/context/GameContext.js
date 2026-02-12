@@ -109,9 +109,57 @@ export const GameProvider = ({ children }) => {
   // Geolocation watch IDs - separate for passive tracking and active capture
   const [passiveWatchId, setPassiveWatchId] = useState(null);
   const [captureWatchId, setCaptureWatchId] = useState(null);
+  const [allTerritories, setAllTerritories] = useState([]); // All territories from all users
+  const [isLoadingTerritories, setIsLoadingTerritories] = useState(true);
 
-  // Load user territories from localStorage
+  // API base URL
+  const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
+
+  // Fetch ALL territories from backend (multi-user)
+  const fetchAllTerritories = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/territories`);
+      if (response.ok) {
+        const data = await response.json();
+        setAllTerritories(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch territories:', error);
+    } finally {
+      setIsLoadingTerritories(false);
+    }
+  }, [API_BASE]);
+
+  // Save territory to backend
+  const saveTerritory = useCallback(async (territory, userId) => {
+    try {
+      const response = await fetch(`${API_BASE}/api/territories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId || 'anonymous',
+          name: territory.name,
+          coordinates: territory.coordinates,
+          color: territory.color,
+          distance: territory.distance,
+          duration: territory.duration,
+        }),
+      });
+      if (response.ok) {
+        // Refresh all territories
+        fetchAllTerritories();
+      }
+    } catch (error) {
+      console.error('Failed to save territory to backend:', error);
+    }
+  }, [API_BASE, fetchAllTerritories]);
+
+  // Load territories on mount - both from backend and localStorage
   useEffect(() => {
+    // Fetch from backend for multi-user view
+    fetchAllTerritories();
+    
+    // Also load local territories (for offline/immediate display)
     const stored = localStorage.getItem('capture_territories');
     if (stored) {
       setUserTerritories(JSON.parse(stored));
@@ -120,9 +168,9 @@ export const GameProvider = ({ children }) => {
     if (storedRuns) {
       setSavedRuns(JSON.parse(storedRuns));
     }
-  }, []);
+  }, [fetchAllTerritories]);
 
-  // Save territories to localStorage
+  // Save territories to localStorage (for offline access)
   useEffect(() => {
     if (userTerritories.length > 0) {
       localStorage.setItem('capture_territories', JSON.stringify(userTerritories));

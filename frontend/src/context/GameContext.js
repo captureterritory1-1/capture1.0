@@ -46,7 +46,8 @@ const BRAND_TERRITORIES = [
     brand: 'MuscleBlaze',
     brandKey: 'MuscleBlaze',
     color: '#FF6B00', // Orange
-    logoUrl: BRAND_LOGOS.MuscleBlaze,
+    logoUrl: BRAND_LOGOS_DIRECT.MuscleBlaze, // Direct URL for map markers
+    logoUrlProxied: getProxiedLogoUrl('MuscleBlaze'), // Proxied URL for canvas
     prize: BRAND_PRIZES.MuscleBlaze,
     // Rectangular block along Indiranagar 12th Main Road
     coordinates: [
@@ -65,7 +66,8 @@ const BRAND_TERRITORIES = [
     brand: 'MuscleBlaze',
     brandKey: 'MuscleBlaze',
     color: '#FF6B00',
-    logoUrl: BRAND_LOGOS.MuscleBlaze,
+    logoUrl: BRAND_LOGOS_DIRECT.MuscleBlaze,
+    logoUrlProxied: getProxiedLogoUrl('MuscleBlaze'),
     prize: BRAND_PRIZES.MuscleBlaze,
     // Rectangular block along Koramangala 80ft Road
     coordinates: [
@@ -84,7 +86,8 @@ const BRAND_TERRITORIES = [
     brand: 'MuscleBlaze',
     brandKey: 'MuscleBlaze',
     color: '#FF6B00',
-    logoUrl: BRAND_LOGOS.MuscleBlaze,
+    logoUrl: BRAND_LOGOS_DIRECT.MuscleBlaze,
+    logoUrlProxied: getProxiedLogoUrl('MuscleBlaze'),
     prize: BRAND_PRIZES.MuscleBlaze,
     // Rectangular block in HSR Layout
     coordinates: [

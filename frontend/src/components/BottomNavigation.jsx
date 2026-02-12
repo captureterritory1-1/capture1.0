@@ -23,8 +23,11 @@ const BottomNavigation = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
-      <div className="flex items-center justify-around px-2 py-2 pb-safe max-w-lg mx-auto">
+    <nav 
+      className="fixed bottom-0 left-0 right-0 bg-card border-t border-border"
+      style={{ zIndex: 9999 }}
+    >
+      <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
         {navItems.map((item) => (
           <button
             key={item.id}
@@ -37,7 +40,7 @@ const BottomNavigation = () => {
             )}
           >
             {item.isCenter ? (
-              // Center FAB Button
+              // Center FAB Button - Amber colored
               <div className="w-14 h-14 rounded-full bg-accent flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200">
                 <item.icon className="w-6 h-6 text-accent-foreground" />
               </div>

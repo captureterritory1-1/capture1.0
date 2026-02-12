@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
@@ -20,9 +20,14 @@ import {
   HelpCircle,
   Star,
   Moon,
-  Sun
+  Sun,
+  Camera,
+  Loader2,
+  Edit2
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -30,9 +35,41 @@ const ProfilePage = () => {
   const { getTotalStats, userPreferences, userTerritories } = useGame();
   const { isDarkMode, toggleTheme } = useTheme();
   const stats = getTotalStats();
+  
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // Load profile picture on mount
+  useEffect(() => {
+    const loadProfilePicture = async () => {
+      // First check localStorage for quick load
+      const cachedPic = localStorage.getItem('capture_profile_picture');
+      if (cachedPic) {
+        setProfilePicture(cachedPic);
+      }
+      
+      // Then try to fetch from server
+      if (user?.id) {
+        try {
+          const response = await fetch(`${API_BASE}/api/profile-picture/${user.id}`);
+          const data = await response.json();
+          if (data.success && data.url) {
+            setProfilePicture(data.url);
+            localStorage.setItem('capture_profile_picture', data.url);
+          }
+        } catch (error) {
+          console.error('Error loading profile picture:', error);
+        }
+      }
+    };
+    
+    loadProfilePicture();
+  }, [user?.id]);
 
   const handleLogout = () => {
     logout();
+    localStorage.removeItem('capture_profile_picture');
     toast.success('Logged out successfully');
     navigate('/login');
   };
@@ -40,6 +77,54 @@ const ProfilePage = () => {
   const handleThemeToggle = () => {
     toggleTheme();
     toast.success(isDarkMode ? 'Light mode activated' : 'Dark mode activated');
+  };
+
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+      toast.error('Please select a valid image file (JPEG, PNG, WebP, or GIF)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE}/api/profile-picture/${user?.id || 'anonymous'}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setProfilePicture(data.url);
+        localStorage.setItem('capture_profile_picture', data.url);
+        toast.success('Profile picture updated!');
+      } else {
+        throw new Error(data.detail || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const menuItems = [
@@ -92,16 +177,59 @@ const ProfilePage = () => {
         
         {/* Profile Card */}
         <div className="flex items-center gap-4">
-          <div 
-            className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg"
-            style={{ backgroundColor: userPreferences.territoryColor.hex }}
-          >
-            {(user?.displayName || 'U')[0].toUpperCase()}
+          {/* Profile Picture with Upload */}
+          <div className="relative">
+            <button 
+              onClick={handleProfilePictureClick}
+              disabled={isUploading}
+              className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center text-white text-2xl font-bold shadow-lg relative group transition-transform hover:scale-105 active:scale-95"
+              style={{ backgroundColor: profilePicture ? 'transparent' : userPreferences.territoryColor.hex }}
+            >
+              {isUploading ? (
+                <Loader2 className="w-8 h-8 animate-spin text-white" />
+              ) : profilePicture ? (
+                <img 
+                  src={profilePicture} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                (user?.displayName || 'U')[0].toUpperCase()
+              )}
+              
+              {/* Overlay on hover */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Camera className="w-6 h-6 text-white" />
+              </div>
+            </button>
+            
+            {/* Camera badge */}
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-accent rounded-full flex items-center justify-center shadow-lg border-2 border-card">
+              <Camera className="w-3.5 h-3.5 text-accent-foreground" />
+            </div>
+            
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleFileChange}
+              className="hidden"
+            />
           </div>
+          
           <div className="flex-1">
-            <h2 className="text-xl font-heading font-bold text-foreground">
-              {user?.displayName || 'Runner'}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-heading font-bold text-foreground">
+                {user?.displayName || 'Runner'}
+              </h2>
+              <button 
+                className="p-1 hover:bg-secondary rounded-md transition-colors"
+                onClick={() => toast.info('Edit profile coming soon!')}
+              >
+                <Edit2 className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
             <p className="text-xs text-muted-foreground mt-1">
               Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}

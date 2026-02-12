@@ -486,11 +486,11 @@ const MapPage = () => {
         />
       </div>
 
-      {/* Scratch Card Modal */}
+      {/* Scratch Card Modal - pass full territory object */}
       <ScratchCard 
         isOpen={showScratchCard}
         onClose={handleCloseScratchCard}
-        brandName={selectedBrand?.brand || 'MuscleBlaze'}
+        territory={selectedBrand}
       />
     </div>
   );

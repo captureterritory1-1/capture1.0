@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { GameProvider } from "./context/GameContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "./components/ui/sonner";
 import BottomNavigation from "./components/BottomNavigation";
 
@@ -152,23 +153,25 @@ const AppContent = () => {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <GameProvider>
-          <div className="App bg-background" style={{ minHeight: '100dvh', overflow: 'hidden' }}>
-            <AppContent />
-            <Toaster 
-              position="top-center" 
-              toastOptions={{
-                style: {
-                  background: 'hsl(var(--card))',
-                  color: 'hsl(var(--foreground))',
-                  border: '1px solid hsl(var(--border))',
-                },
-              }}
-            />
-          </div>
-        </GameProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <GameProvider>
+            <div className="App bg-background theme-transition" style={{ minHeight: '100dvh', overflow: 'hidden' }}>
+              <AppContent />
+              <Toaster 
+                position="top-center" 
+                toastOptions={{
+                  style: {
+                    background: 'hsl(var(--card))',
+                    color: 'hsl(var(--foreground))',
+                    border: '1px solid hsl(var(--border))',
+                  },
+                }}
+              />
+            </div>
+          </GameProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

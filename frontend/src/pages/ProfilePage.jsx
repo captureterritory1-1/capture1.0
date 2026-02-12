@@ -2,12 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
-import BottomNavigation from '../components/BottomNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
 import { 
-  User, 
   MapPin, 
   Route, 
   Clock, 
@@ -21,7 +19,6 @@ import {
   Star
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '../lib/utils';
 
 const ProfilePage = () => {
   const navigate = useNavigate();

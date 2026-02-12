@@ -582,15 +582,13 @@ export const GameProvider = ({ children }) => {
     setUserPreferences((prev) => ({ ...prev, ...newPrefs }));
   }, []);
 
-  // Get total stats
+  // Get total stats (without area)
   const getTotalStats = useCallback(() => {
-    const totalArea = userTerritories.reduce((sum, t) => sum + t.area, 0);
     const totalDist = userTerritories.reduce((sum, t) => sum + (t.distance || 0), 0);
     const totalTime = userTerritories.reduce((sum, t) => sum + (t.duration || 0), 0);
     
     return {
       territories: userTerritories.length,
-      totalArea: totalArea.toFixed(4),
       totalDistance: totalDist.toFixed(2),
       totalTime: formatTime(totalTime),
     };

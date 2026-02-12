@@ -288,7 +288,9 @@ const MapPage = () => {
       position: center,
       zoom: 18
     });
-    toast.info(`Flying to ${territory.name}`);
+    toast.info(`Flying to ${territory.name}`, {
+      duration: 3000,
+    });
   };
 
   // Clear fly target after animation

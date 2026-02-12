@@ -417,6 +417,9 @@ export const GameProvider = ({ children }) => {
 
       setUserTerritories((prev) => [...prev, newTerritory]);
       
+      // Save to backend for multi-user sync
+      saveTerritory(newTerritory);
+      
       // Reset tracking state
       setCurrentPath([]);
       setTotalDistance(0);

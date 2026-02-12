@@ -91,8 +91,8 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
 
-    // Draw the brand logo as the scratch layer
-    if (logoImageRef.current) {
+    // Draw the brand logo as the scratch layer (only if logo loaded successfully)
+    if (logoImageRef.current && !logoLoadError) {
       // Fill with brand color first as fallback
       ctx.fillStyle = brandColor;
       ctx.fillRect(0, 0, rect.width, rect.height);
@@ -119,19 +119,19 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
       
       ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
       
-      // Add semi-transparent overlay for scratch effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      // Add semi-transparent overlay for better scratch visibility
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
       ctx.fillRect(0, 0, rect.width, rect.height);
       
-      // Add "Scratch Me!" hint text
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.font = 'bold 16px Oswald, sans-serif';
+      // Add "Scratch Me!" hint text with better visibility
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.font = 'bold 18px Oswald, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
-      // Text shadow effect
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-      ctx.shadowBlur = 4;
+      // Text shadow effect for readability
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+      ctx.shadowBlur = 6;
       ctx.shadowOffsetX = 2;
       ctx.shadowOffsetY = 2;
       
@@ -142,8 +142,11 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
       ctx.shadowBlur = 0;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
+      
+      console.log('Canvas drawn with logo successfully');
     } else {
       // Fallback: Draw brand color with text if no logo
+      console.log('Using fallback - no logo available');
       ctx.fillStyle = brandColor;
       ctx.fillRect(0, 0, rect.width, rect.height);
       
@@ -160,7 +163,7 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
     setScratchPercent(0);
     setIsRevealed(false);
     setShowConfetti(false);
-  }, [isOpen, logoLoaded, brandColor, brandName]);
+  }, [isOpen, logoLoaded, logoLoadError, brandColor, brandName]);
 
   // Calculate scratch percentage
   const calculateScratchPercent = useCallback(() => {

@@ -14,54 +14,157 @@ export const useGame = () => {
 // Bangalore center coordinates
 const BANGALORE_CENTER = [12.9716, 77.5946];
 
-// Hardcoded MuscleBlaze brand territories in Bangalore
+// Brand logos
+const BRAND_LOGOS = {
+  MuscleBlaze: 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/puq75076_unnamed.png',
+  SuperYou: 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/t35afcm6_channels4_profile.jpg',
+  TheWholeTruth: 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/s450l1io_images-4.png',
+};
+
+// Brand prizes/coupons
+const BRAND_PRIZES = {
+  MuscleBlaze: { discount: '₹500 OFF', code: 'CAPTURE500', description: 'on your next MuscleBlaze order' },
+  SuperYou: { discount: '30% OFF', code: 'SUPERYOU30', description: 'on all SuperYou products' },
+  TheWholeTruth: { discount: 'FREE BAR', code: 'TRUTHBAR', description: 'Get 1 protein bar free' },
+};
+
+// Hardcoded brand territories with REALISTIC road-snapped coordinates in Bangalore
 const BRAND_TERRITORIES = [
+  // === MuscleBlaze Territories (3) ===
   {
     id: 'brand_muscleblaze_1',
-    name: 'MuscleBlaze Zone - Indiranagar',
+    name: 'MuscleBlaze - Indiranagar 12th Main',
     brand: 'MuscleBlaze',
-    color: '#FFD700', // Gold
+    brandKey: 'MuscleBlaze',
+    color: '#FF6B00', // Orange
+    logoUrl: BRAND_LOGOS.MuscleBlaze,
+    prize: BRAND_PRIZES.MuscleBlaze,
+    // Rectangular block along Indiranagar 12th Main Road
     coordinates: [
-      [77.6390, 12.9780],
-      [77.6420, 12.9810],
-      [77.6450, 12.9790],
-      [77.6440, 12.9750],
-      [77.6400, 12.9740],
-      [77.6390, 12.9780],
+      [77.6380, 12.9780],
+      [77.6420, 12.9780],
+      [77.6420, 12.9760],
+      [77.6380, 12.9760],
+      [77.6380, 12.9780],
     ],
-    area: 0.15,
+    area: 0.12,
     isSponsored: true,
   },
   {
     id: 'brand_muscleblaze_2',
-    name: 'MuscleBlaze Zone - Koramangala',
+    name: 'MuscleBlaze - Koramangala 80ft Road',
     brand: 'MuscleBlaze',
-    color: '#FFD700',
+    brandKey: 'MuscleBlaze',
+    color: '#FF6B00',
+    logoUrl: BRAND_LOGOS.MuscleBlaze,
+    prize: BRAND_PRIZES.MuscleBlaze,
+    // Rectangular block along Koramangala 80ft Road
     coordinates: [
-      [77.6150, 12.9340],
-      [77.6190, 12.9370],
-      [77.6230, 12.9350],
-      [77.6220, 12.9310],
-      [77.6170, 12.9300],
-      [77.6150, 12.9340],
+      [77.6160, 12.9345],
+      [77.6200, 12.9345],
+      [77.6200, 12.9320],
+      [77.6160, 12.9320],
+      [77.6160, 12.9345],
+    ],
+    area: 0.14,
+    isSponsored: true,
+  },
+  {
+    id: 'brand_muscleblaze_3',
+    name: 'MuscleBlaze - HSR Layout Sector 2',
+    brand: 'MuscleBlaze',
+    brandKey: 'MuscleBlaze',
+    color: '#FF6B00',
+    logoUrl: BRAND_LOGOS.MuscleBlaze,
+    prize: BRAND_PRIZES.MuscleBlaze,
+    // Rectangular block in HSR Layout
+    coordinates: [
+      [77.6400, 12.9130],
+      [77.6450, 12.9130],
+      [77.6450, 12.9100],
+      [77.6400, 12.9100],
+      [77.6400, 12.9130],
+    ],
+    area: 0.15,
+    isSponsored: true,
+  },
+  
+  // === Super You Territories (2) ===
+  {
+    id: 'brand_superyou_1',
+    name: 'Super You - Indiranagar 100ft Road',
+    brand: 'Super You',
+    brandKey: 'SuperYou',
+    color: '#EF4444', // Red (matches brand)
+    logoUrl: BRAND_LOGOS.SuperYou,
+    prize: BRAND_PRIZES.SuperYou,
+    // Long rectangular block along 100ft Road Indiranagar
+    coordinates: [
+      [77.6350, 12.9720],
+      [77.6410, 12.9720],
+      [77.6410, 12.9700],
+      [77.6350, 12.9700],
+      [77.6350, 12.9720],
     ],
     area: 0.18,
     isSponsored: true,
   },
   {
-    id: 'brand_muscleblaze_3',
-    name: 'MuscleBlaze Zone - HSR Layout',
-    brand: 'MuscleBlaze',
-    color: '#FFD700',
+    id: 'brand_superyou_2',
+    name: 'Super You - Indiranagar Double Road',
+    brand: 'Super You',
+    brandKey: 'SuperYou',
+    color: '#EF4444',
+    logoUrl: BRAND_LOGOS.SuperYou,
+    prize: BRAND_PRIZES.SuperYou,
+    // Block near Double Road intersection
     coordinates: [
-      [77.6400, 12.9120],
-      [77.6440, 12.9150],
-      [77.6480, 12.9130],
-      [77.6470, 12.9090],
-      [77.6420, 12.9080],
-      [77.6400, 12.9120],
+      [77.6420, 12.9810],
+      [77.6460, 12.9810],
+      [77.6460, 12.9785],
+      [77.6420, 12.9785],
+      [77.6420, 12.9810],
     ],
-    area: 0.16,
+    area: 0.12,
+    isSponsored: true,
+  },
+  
+  // === The Whole Truth Territories (2) ===
+  {
+    id: 'brand_twt_1',
+    name: 'The Whole Truth - Koramangala 5th Block',
+    brand: 'The Whole Truth',
+    brandKey: 'TheWholeTruth',
+    color: '#6B21A8', // Purple (matches brand)
+    logoUrl: BRAND_LOGOS.TheWholeTruth,
+    prize: BRAND_PRIZES.TheWholeTruth,
+    // Square park block in 5th Block Koramangala
+    coordinates: [
+      [77.6100, 12.9360],
+      [77.6130, 12.9360],
+      [77.6130, 12.9330],
+      [77.6100, 12.9330],
+      [77.6100, 12.9360],
+    ],
+    area: 0.10,
+    isSponsored: true,
+  },
+  {
+    id: 'brand_twt_2',
+    name: 'The Whole Truth - Sony World Signal',
+    brand: 'The Whole Truth',
+    brandKey: 'TheWholeTruth',
+    color: '#6B21A8',
+    logoUrl: BRAND_LOGOS.TheWholeTruth,
+    prize: BRAND_PRIZES.TheWholeTruth,
+    // Triangular junction block near Sony World Signal
+    coordinates: [
+      [77.6180, 12.9280],
+      [77.6220, 12.9295],
+      [77.6210, 12.9260],
+      [77.6180, 12.9280],
+    ],
+    area: 0.08,
     isSponsored: true,
   },
 ];

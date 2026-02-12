@@ -10,9 +10,6 @@ import { toast } from 'sonner';
 import { Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// MuscleBlaze logo URL
-const MUSCLEBLAZE_LOGO = 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/puq75076_unnamed.png';
-
 // Map tile URLs
 const MAP_TILES = {
   light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',

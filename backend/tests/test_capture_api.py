@@ -127,6 +127,58 @@ class TestTerritoryEndpoints:
         print(f"✅ Territory deleted: {territory_id}")
 
 
+class TestTerritoryClaimEndpoint:
+    """Territory claim/over-capture endpoint tests"""
+    
+    def test_claim_territory(self):
+        """Test claiming/over-capturing an existing territory"""
+        # First create a territory to claim
+        payload = {
+            "user_id": "TEST_original_owner",
+            "name": "TEST_Territory_ToClaim",
+            "coordinates": [[77.638, 12.975], [77.642, 12.975], [77.642, 12.972], [77.638, 12.972], [77.638, 12.975]],
+            "color": "#EF4444",
+            "distance": 1.5,
+            "duration": 600
+        }
+        create_response = requests.post(f"{BASE_URL}/api/territories", json=payload)
+        assert create_response.status_code == 200
+        territory_id = create_response.json()["id"]
+        print(f"Created territory to claim: {territory_id}")
+        
+        # Now claim it with a new owner
+        claim_payload = {
+            "new_owner_id": "TEST_new_owner",
+            "new_color": "#3B82F6"
+        }
+        claim_response = requests.put(f"{BASE_URL}/api/territories/{territory_id}/claim", json=claim_payload)
+        assert claim_response.status_code == 200
+        claim_data = claim_response.json()
+        assert claim_data["success"] == True
+        print(f"✅ Territory claimed successfully")
+        
+        # Verify the territory was updated
+        get_response = requests.get(f"{BASE_URL}/api/territories/{territory_id}")
+        assert get_response.status_code == 200
+        updated_territory = get_response.json()
+        assert updated_territory["user_id"] == "TEST_new_owner"
+        assert updated_territory["color"] == "#3B82F6"
+        print(f"✅ Territory ownership verified: {updated_territory['user_id']}")
+        
+        # Clean up
+        requests.delete(f"{BASE_URL}/api/territories/{territory_id}")
+    
+    def test_claim_nonexistent_territory(self):
+        """Test claiming a non-existent territory returns 404"""
+        claim_payload = {
+            "new_owner_id": "TEST_new_owner",
+            "new_color": "#3B82F6"
+        }
+        response = requests.put(f"{BASE_URL}/api/territories/nonexistent_id/claim", json=claim_payload)
+        assert response.status_code == 404
+        print("✅ Non-existent territory claim returns 404")
+
+
 class TestBrandTerritoryEndpoints:
     """Brand territory endpoint tests"""
     

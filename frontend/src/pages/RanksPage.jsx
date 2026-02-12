@@ -1,8 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
-import BottomNavigation from '../components/BottomNavigation';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent } from '../components/ui/card';
 import { Trophy, Medal, Crown, MapPin, Clock, Route } from 'lucide-react';
 import { cn } from '../lib/utils';
 

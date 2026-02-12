@@ -19,7 +19,9 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
   // Get brand info from territory
   const brandName = territory?.brand || 'Brand';
   const brandColor = territory?.color || '#FFD700';
-  const logoUrl = territory?.logoUrl;
+  // Use proxied URL for canvas (CORS), fall back to direct URL
+  const logoUrl = territory?.logoUrlProxied || territory?.logoUrl;
+  const logoUrlDirect = territory?.logoUrl; // Direct URL for header image
   const prize = territory?.prize || { 
     discount: '₹500 OFF', 
     code: 'CAPTURE500', 

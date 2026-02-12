@@ -141,20 +141,39 @@ code {
     }
     body {
         @apply bg-background text-foreground;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
     
-    /* Typography */
+    /* Typography - Oswald for headings */
     h1, h2, h3, h4, h5, h6 {
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: 'Oswald', sans-serif;
         font-weight: 600;
+    }
+    
+    /* Font for metrics/numbers */
+    .font-metrics {
+        font-family: 'Oswald', sans-serif;
     }
 }
 
 @layer components {
-    /* Floating Card Sheet */
+    /* Floating Card Sheet - with glassmorphism */
     .floating-sheet {
-        @apply bg-card rounded-t-3xl shadow-xl;
+        @apply bg-card/90 backdrop-blur-xl rounded-t-3xl;
         box-shadow: var(--shadow-elevated);
+    }
+    
+    /* Glassmorphism utility */
+    .glass {
+        @apply bg-card/80 backdrop-blur-xl border border-border/50;
+    }
+    
+    .glass-light {
+        @apply bg-white/80 backdrop-blur-xl border border-white/20;
+    }
+    
+    .glass-dark {
+        @apply bg-black/80 backdrop-blur-xl border border-white/10;
     }
     
     /* Capture Button - Amber CTA */
@@ -180,12 +199,17 @@ code {
         box-shadow: var(--shadow-card);
     }
     
-    /* Bottom Navigation */
+    /* Bottom Navigation - with glassmorphism */
     .bottom-nav {
-        @apply fixed bottom-0 left-0 right-0 bg-card;
-        @apply border-t border-border;
+        @apply fixed bottom-0 left-0 right-0;
+        @apply bg-card/90 backdrop-blur-xl;
+        @apply border-t border-border/50;
         @apply px-4 py-2 pb-safe;
-        box-shadow: 0 -4px 20px hsl(0 0% 0% / 0.05);
+        box-shadow: 0 -4px 20px hsl(0 0% 0% / 0.08);
+    }
+    
+    .dark .bottom-nav {
+        box-shadow: 0 -4px 20px hsl(0 0% 0% / 0.3);
     }
     
     /* Territory Colors */

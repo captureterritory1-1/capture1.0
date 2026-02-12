@@ -332,7 +332,7 @@ const MapPage = () => {
             />
           )}
           
-          {/* Current position marker - ALWAYS VISIBLE */}
+          {/* Current position marker - ALWAYS VISIBLE when we have position */}
           {currentPosition && (
             <Marker
               position={currentPosition}
@@ -343,6 +343,16 @@ const MapPage = () => {
             />
           )}
         </MapContainer>
+        
+        {/* Location status indicator */}
+        {!currentPosition && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[500]">
+            <div className="bg-card px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" />
+              <span className="text-sm text-foreground font-medium">Finding your location...</span>
+            </div>
+          </div>
+        )}
         
         {/* Attribution overlay */}
         <div className="absolute bottom-24 left-2 text-xs text-muted-foreground/60 z-[400]">

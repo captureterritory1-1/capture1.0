@@ -141,23 +141,6 @@ const createBrandLogoIcon = (territory) => {
     iconAnchor: [40, 35],
   });
 };
-          padding: 3px 8px;
-          border-radius: 10px;
-          font-size: 9px;
-          font-weight: 700;
-          white-space: nowrap;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        ">
-          MuscleBlaze Zone
-        </div>
-      </div>
-    `,
-    iconSize: [80, 70],
-    iconAnchor: [40, 35],
-  });
-};
 
 // Map controller component - follows user when tracking + handles flyTo
 const MapController = ({ center, isTracking, shouldCenter, flyToTarget, onFlyComplete }) => {

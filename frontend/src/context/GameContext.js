@@ -17,11 +17,11 @@ const BANGALORE_CENTER = [12.9750, 77.6380];
 // API base URL for proxy
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 
-// Brand logos - Original URLs (for map markers which work with img tags)
+// Brand logos - Using user-uploaded logos (for map markers which work with img tags)
 const BRAND_LOGOS_DIRECT = {
-  MuscleBlaze: 'https://static.prod-images.emergentagent.com/jobs/62a390cf-e991-4f9e-9698-d97c5fc17e8c/images/a1e286660452ee772461319f47f6c2d26505153492ccf260839fc12854fc75b5.png',
-  SuperYou: 'https://static.prod-images.emergentagent.com/jobs/62a390cf-e991-4f9e-9698-d97c5fc17e8c/images/353c69b660c5a9d87ed77019a52a130d9b3ad1dc80a8f026a2c2f4189573e2fb.png',
-  TheWholeTruth: 'https://static.prod-images.emergentagent.com/jobs/62a390cf-e991-4f9e-9698-d97c5fc17e8c/images/a61d5ce669bb099866a4b8fd9ff58ef1c808ddf2f9a129d41b39ee4c710f3389.png',
+  MuscleBlaze: 'https://customer-assets.emergentagent.com/job_area-claim/artifacts/hdwrq9jx_images-2.png',
+  SuperYou: 'https://customer-assets.emergentagent.com/job_area-claim/artifacts/qderkt0t_channels4_profile.jpg',
+  TheWholeTruth: 'https://customer-assets.emergentagent.com/job_area-claim/artifacts/en3r28t5_images-4.png',
 };
 
 // Brand logos - Proxied URLs (for canvas drawing which requires CORS)

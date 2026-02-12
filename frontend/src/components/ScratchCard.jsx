@@ -172,7 +172,7 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
     if (!canvasRef.current) return 0;
     
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = imageData.data;
     

@@ -285,7 +285,7 @@ const ProfilePage = () => {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-foreground">{territory.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {(territory.area * 1000000).toFixed(0)} sq m • {territory.distance?.toFixed(2) || '0.00'} km
+                        {territory.distance?.toFixed(2) || '0.00'} km • {Math.floor((territory.duration || 0) / 60)}:{String((territory.duration || 0) % 60).padStart(2, '0')} min
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground">

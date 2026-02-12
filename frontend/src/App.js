@@ -1,8 +1,9 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { GameProvider } from "./context/GameContext";
 import { Toaster } from "./components/ui/sonner";
+import BottomNavigation from "./components/BottomNavigation";
 
 // Pages
 import LoginPage from "./pages/LoginPage";
@@ -64,68 +65,87 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
+// Global Navigation Wrapper - shows nav on authenticated routes
+const NavigationWrapper = () => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  
+  // Hide navigation on login and setup pages
+  const hideNavRoutes = ['/login', '/setup'];
+  const shouldShowNav = isAuthenticated && !hideNavRoutes.includes(location.pathname);
+  
+  if (!shouldShowNav) return null;
+  
+  return <BottomNavigation />;
+};
+
 // App Content with Routes
 const AppContent = () => {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        }
-      />
+    <>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
 
-      {/* Setup Route (needs auth but not setup completion) */}
-      <Route
-        path="/setup"
-        element={
-          <ProtectedRoute>
-            <SetupPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* Setup Route (needs auth but not setup completion) */}
+        <Route
+          path="/setup"
+          element={
+            <ProtectedRoute>
+              <SetupPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Protected Routes */}
-      <Route
-        path="/map"
-        element={
-          <ProtectedRoute>
-            <MapPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/ranks"
-        element={
-          <ProtectedRoute>
-            <RanksPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/friends"
-        element={
-          <ProtectedRoute>
-            <FriendsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
+        {/* Protected Routes */}
+        <Route
+          path="/map"
+          element={
+            <ProtectedRoute>
+              <MapPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ranks"
+          element={
+            <ProtectedRoute>
+              <RanksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/friends"
+          element={
+            <ProtectedRoute>
+              <FriendsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Default redirect */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+      
+      {/* Global Navigation - Always visible when authenticated */}
+      <NavigationWrapper />
+    </>
   );
 };
 
@@ -134,7 +154,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <GameProvider>
-          <div className="App min-h-screen bg-background">
+          <div className="App bg-background" style={{ minHeight: '100dvh', overflow: 'hidden' }}>
             <AppContent />
             <Toaster 
               position="top-center" 

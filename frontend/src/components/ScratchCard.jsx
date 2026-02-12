@@ -41,21 +41,39 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
 
   // Load brand logo image
   useEffect(() => {
-    if (!isOpen || !logoUrl) return;
+    if (!isOpen || !logoUrl) {
+      setLogoLoadError(true);
+      setLogoLoaded(true);
+      return;
+    }
+    
+    // Reset states
+    setLogoLoaded(false);
+    setLogoLoadError(false);
+    logoImageRef.current = null;
     
     const img = new Image();
     img.crossOrigin = 'anonymous';
+    
     img.onload = () => {
+      console.log('Logo loaded successfully:', logoUrl);
       logoImageRef.current = img;
+      setLogoLoadError(false);
       setLogoLoaded(true);
     };
-    img.onerror = () => {
-      setLogoLoaded(true); // Still continue even if logo fails
+    
+    img.onerror = (error) => {
+      console.error('Logo failed to load:', logoUrl, error);
+      logoImageRef.current = null;
+      setLogoLoadError(true);
+      setLogoLoaded(true); // Continue with fallback
     };
+    
     img.src = logoUrl;
     
     return () => {
       setLogoLoaded(false);
+      setLogoLoadError(false);
     };
   }, [isOpen, logoUrl]);
 

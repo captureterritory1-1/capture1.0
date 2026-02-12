@@ -265,7 +265,7 @@ const MapPage = () => {
     
     if (result.success) {
       toast.success(result.message, {
-        description: `Area: ${(result.territory.area * 1000000).toFixed(0)} sq meters`,
+        description: `Distance: ${result.territory.distance?.toFixed(2) || 0} km`,
       });
     } else if (result.isRun) {
       toast.info(result.message, {

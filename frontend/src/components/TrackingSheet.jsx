@@ -19,8 +19,43 @@ const TrackingSheet = ({
   onHoldEnd,
   onCancelEnd,
 }) => {
+  // Handle button click with stopPropagation to prevent map interaction
+  const handleStartClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onStartRun();
+  };
+
+  const handleEndClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onEndRun();
+  };
+
+  const handleHoldStartWithStop = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onHoldStart();
+  };
+
+  const handleHoldEndWithStop = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onHoldEnd();
+  };
+
+  const handleCancelWithStop = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onCancelEnd();
+  };
+
   return (
-    <div className="absolute bottom-4 left-0 right-0 z-[500] px-4">
+    <div 
+      className="absolute bottom-4 left-0 right-0 px-4"
+      style={{ zIndex: 9999, position: 'relative' }}
+      onClick={(e) => e.stopPropagation()}
+    >
       <Card className="floating-sheet border-0 overflow-hidden">
         <CardContent className="p-4">
           {/* Confirm End Modal */}
@@ -32,7 +67,7 @@ const TrackingSheet = ({
                   variant="ghost"
                   size="icon"
                   className="w-8 h-8 rounded-full"
-                  onClick={onCancelEnd}
+                  onClick={handleCancelWithStop}
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -46,11 +81,11 @@ const TrackingSheet = ({
                     "transition-all duration-100",
                     holdProgress > 0 && "scale-[0.98]"
                   )}
-                  onMouseDown={onHoldStart}
-                  onMouseUp={onHoldEnd}
-                  onMouseLeave={onHoldEnd}
-                  onTouchStart={onHoldStart}
-                  onTouchEnd={onHoldEnd}
+                  onMouseDown={handleHoldStartWithStop}
+                  onMouseUp={handleHoldEndWithStop}
+                  onMouseLeave={handleHoldEndWithStop}
+                  onTouchStart={handleHoldStartWithStop}
+                  onTouchEnd={handleHoldEndWithStop}
                 >
                   {holdProgress > 0 ? (
                     <span>Hold... {Math.round(holdProgress)}%</span>
@@ -74,7 +109,7 @@ const TrackingSheet = ({
           {/* Stats Display */}
           <div className={cn(
             "transition-opacity duration-200",
-            showConfirmEnd && "opacity-50"
+            showConfirmEnd && "opacity-50 pointer-events-none"
           )}>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -97,7 +132,7 @@ const TrackingSheet = ({
                   <Route className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground font-medium">Distance</span>
                 </div>
-                <p className="text-2xl font-bold text-foreground font-heading">
+                <p className="text-2xl font-bold text-foreground font-metrics">
                   {formatDistance(totalDistance)}
                 </p>
                 <p className="text-xs text-muted-foreground">{unit}</p>
@@ -109,35 +144,42 @@ const TrackingSheet = ({
                   <Clock className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground font-medium">Duration</span>
                 </div>
-                <p className="text-2xl font-bold text-foreground font-heading">
+                <p className="text-2xl font-bold text-foreground font-metrics">
                   {formatTime(elapsedTime)}
                 </p>
                 <p className="text-xs text-muted-foreground">min:sec</p>
               </div>
             </div>
             
-            {/* Action Button */}
+            {/* Action Button - with high z-index and stopPropagation */}
             {!showConfirmEnd && (
-              <>
+              <div style={{ position: 'relative', zIndex: 10000 }}>
                 {!isTracking ? (
                   <Button
-                    onClick={onStartRun}
-                    className="w-full h-14 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    onClick={handleStartClick}
+                    className={cn(
+                      "w-full h-14 font-semibold text-base rounded-xl shadow-lg transition-all duration-200",
+                      "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600",
+                      "text-white hover:shadow-xl active:scale-[0.98]"
+                    )}
                   >
                     <Play className="w-5 h-5 mr-2 fill-current" />
                     Start Capture
                   </Button>
                 ) : (
                   <Button
-                    onClick={onEndRun}
-                    variant="outline"
-                    className="w-full h-14 border-2 border-foreground text-foreground hover:bg-foreground hover:text-background font-semibold text-base rounded-xl transition-all duration-200"
+                    onClick={handleEndClick}
+                    className={cn(
+                      "w-full h-14 font-semibold text-base rounded-xl transition-all duration-200",
+                      "bg-destructive hover:bg-destructive/90 text-white",
+                      "shadow-lg hover:shadow-xl active:scale-[0.98]"
+                    )}
                   >
                     <Square className="w-5 h-5 mr-2 fill-current" />
-                    End Capture
+                    Stop Capture
                   </Button>
                 )}
-              </>
+              </div>
             )}
           </div>
         </CardContent>

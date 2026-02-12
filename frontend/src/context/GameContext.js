@@ -594,6 +594,58 @@ export const GameProvider = ({ children }) => {
     };
   }, [userTerritories, formatTime]);
 
+  // Check if new territory overlaps with existing territories
+  const checkTerritoryOverlap = useCallback((newCoordinates) => {
+    const allExisting = [...allTerritories, ...BRAND_TERRITORIES];
+    const newPolygon = turf.polygon([newCoordinates]);
+    
+    const overlappingTerritories = [];
+    
+    for (const territory of allExisting) {
+      try {
+        const existingPolygon = turf.polygon([territory.coordinates]);
+        const intersection = turf.intersect(turf.featureCollection([newPolygon, existingPolygon]));
+        
+        if (intersection) {
+          overlappingTerritories.push({
+            ...territory,
+            overlapArea: turf.area(intersection) / 1000000, // sq km
+          });
+        }
+      } catch (error) {
+        console.error('Error checking overlap:', error);
+      }
+    }
+    
+    return overlappingTerritories;
+  }, [allTerritories]);
+
+  // Claim/over-capture an existing territory
+  const claimTerritory = useCallback(async (territoryId, newOwnerId, newColor) => {
+    try {
+      // Update in backend
+      const response = await fetch(`${API_BASE}/api/territories/${territoryId}/claim`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          new_owner_id: newOwnerId,
+          new_color: newColor,
+        }),
+      });
+      
+      if (response.ok) {
+        // Refresh all territories
+        fetchAllTerritories();
+        return { success: true, message: 'Territory claimed!' };
+      } else {
+        return { success: false, message: 'Failed to claim territory' };
+      }
+    } catch (error) {
+      console.error('Error claiming territory:', error);
+      return { success: false, message: 'Error claiming territory' };
+    }
+  }, [API_BASE, fetchAllTerritories]);
+
   const value = {
     // State
     userTerritories,

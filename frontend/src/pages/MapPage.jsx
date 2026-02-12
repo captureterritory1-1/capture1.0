@@ -3,14 +3,21 @@ import { MapContainer, TileLayer, Polyline, Polygon, Marker, Popup, useMap } fro
 import L from 'leaflet';
 import { useGame } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import TrackingSheet from '../components/TrackingSheet';
-import { Button } from '../components/ui/button';
+import ScratchCard from '../components/ScratchCard';
 import { toast } from 'sonner';
-import { Crosshair, Navigation } from 'lucide-react';
+import { Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 // MuscleBlaze logo URL
 const MUSCLEBLAZE_LOGO = 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/puq75076_unnamed.png';
+
+// Map tile URLs
+const MAP_TILES = {
+  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+};
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -158,7 +165,8 @@ const MapController = ({ center, isTracking, shouldCenter, flyToTarget, onFlyCom
 const RecenterButton = ({ userPosition, onClick }) => {
   const map = useMap();
   
-  const handleRecenter = () => {
+  const handleRecenter = (e) => {
+    e.stopPropagation();
     if (userPosition) {
       map.flyTo(userPosition, 16, { duration: 1 });
       if (onClick) onClick();
@@ -168,7 +176,7 @@ const RecenterButton = ({ userPosition, onClick }) => {
   return (
     <button
       onClick={handleRecenter}
-      className="absolute top-4 right-4 z-[500] w-11 h-11 bg-card rounded-full shadow-lg flex items-center justify-center hover:bg-secondary transition-colors active:scale-95"
+      className="absolute top-4 right-4 z-[500] w-11 h-11 bg-card/90 backdrop-blur-xl rounded-full shadow-lg flex items-center justify-center hover:bg-secondary transition-colors active:scale-95 border border-border/50"
       title="Re-center on my location"
     >
       <Navigation className="w-5 h-5 text-foreground" />
@@ -179,7 +187,7 @@ const RecenterButton = ({ userPosition, onClick }) => {
 const MapPage = () => {
   const { 
     userTerritories,
-    allTerritories, // All territories from all users
+    allTerritories,
     brandTerritories,
     isTracking,
     currentPath,
@@ -196,14 +204,16 @@ const MapPage = () => {
   } = useGame();
   
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
   const [initialCentered, setInitialCentered] = useState(false);
   const [flyToTarget, setFlyToTarget] = useState(null);
+  const [showScratchCard, setShowScratchCard] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState(null);
   const holdTimerRef = useRef(null);
 
   // Combine local and server territories for display
-  // Prefer server data when available, fallback to local
   const displayTerritories = allTerritories.length > 0 ? allTerritories : userTerritories;
 
   // Center map on user's position once when they first load
@@ -281,15 +291,22 @@ const MapPage = () => {
     ];
   };
 
-  // Fly to brand territory on click
+  // Handle brand territory click - fly to and show scratch card
   const handleBrandClick = (territory) => {
     const center = getPolygonCenter(territory.coordinates);
     setFlyToTarget({
       position: center,
       zoom: 18
     });
+    setSelectedBrand(territory);
+    
+    // Show scratch card after fly animation
+    setTimeout(() => {
+      setShowScratchCard(true);
+    }, 1600);
+    
     toast.info(`Flying to ${territory.name}`, {
-      duration: 3000,
+      duration: 2000,
     });
   };
 
@@ -298,8 +315,14 @@ const MapPage = () => {
     setFlyToTarget(null);
   };
 
+  // Close scratch card
+  const handleCloseScratchCard = () => {
+    setShowScratchCard(false);
+    setSelectedBrand(null);
+  };
+
   return (
-    <div className="fixed inset-0 flex flex-col bg-background" style={{ height: '100dvh' }}>
+    <div className="fixed inset-0 flex flex-col bg-background theme-transition" style={{ height: '100dvh' }}>
       {/* Map Container - Takes all available space above nav */}
       <div className="flex-1 relative pb-20">
         <MapContainer
@@ -309,9 +332,9 @@ const MapPage = () => {
           zoomControl={false}
           attributionControl={false}
         >
-          {/* Light/Clean Map Tiles - CartoDB Positron */}
+          {/* Dynamic Map Tiles based on theme */}
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            url={isDarkMode ? MAP_TILES.dark : MAP_TILES.light}
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           
@@ -353,10 +376,13 @@ const MapPage = () => {
                     <p className="font-bold text-sm">{territory.name}</p>
                     <p className="text-xs text-gray-500">Sponsored Zone</p>
                     <button 
-                      onClick={() => handleBrandClick(territory)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBrandClick(territory);
+                      }}
                       className="mt-2 text-xs text-blue-600 hover:underline"
                     >
-                      Zoom to Zone
+                      Claim Reward 🎁
                     </button>
                   </div>
                 </Popup>
@@ -424,7 +450,7 @@ const MapPage = () => {
         {/* Location status indicator */}
         {!currentPosition && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[500]">
-            <div className="bg-card px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+            <div className="bg-card/90 backdrop-blur-xl px-4 py-2 rounded-full shadow-lg flex items-center gap-2 border border-border/50">
               <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" />
               <span className="text-sm text-foreground font-medium">Finding your location...</span>
             </div>
@@ -453,6 +479,13 @@ const MapPage = () => {
           onCancelEnd={handleCancelEnd}
         />
       </div>
+
+      {/* Scratch Card Modal */}
+      <ScratchCard 
+        isOpen={showScratchCard}
+        onClose={handleCloseScratchCard}
+        brandName={selectedBrand?.brand || 'MuscleBlaze'}
+      />
     </div>
   );
 };

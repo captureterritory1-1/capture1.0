@@ -245,19 +245,11 @@ const ProfilePage = () => {
             <CardTitle className="text-base font-heading">Your Stats</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="bg-secondary/50 rounded-xl p-4 text-center theme-transition">
                 <MapPin className="w-6 h-6 mx-auto text-accent mb-2" />
                 <p className="text-2xl font-bold text-foreground font-metrics">{stats.territories}</p>
                 <p className="text-xs text-muted-foreground">Territories</p>
-              </div>
-              <div className="bg-secondary/50 rounded-xl p-4 text-center theme-transition">
-                <div 
-                  className="w-6 h-6 mx-auto rounded mb-2"
-                  style={{ backgroundColor: userPreferences.territoryColor.hex }}
-                />
-                <p className="text-2xl font-bold text-foreground font-metrics">{stats.totalArea}</p>
-                <p className="text-xs text-muted-foreground">km² Captured</p>
               </div>
               <div className="bg-secondary/50 rounded-xl p-4 text-center theme-transition">
                 <Route className="w-6 h-6 mx-auto text-accent mb-2" />

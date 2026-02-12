@@ -300,9 +300,9 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
           style={{ background: `linear-gradient(135deg, ${brandColor}, ${adjustColor(brandColor, -20)})` }}
         >
           <div className="flex items-center gap-3">
-            {logoUrl && (
+            {logoUrlDirect && (
               <img 
-                src={logoUrl} 
+                src={logoUrlDirect} 
                 alt={brandName}
                 className="w-12 h-12 object-cover bg-white rounded-xl"
               />

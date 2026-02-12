@@ -417,8 +417,11 @@ const MapPage = () => {
                 <div className="text-center">
                   <p className="font-bold text-sm">{territory.name}</p>
                   <p className="text-xs text-gray-500">
-                    {(territory.area * 1000000).toFixed(0)} sq m
+                    {territory.distance?.toFixed(2) || '0.00'} km • {Math.floor((territory.duration || 0) / 60)}:{String((territory.duration || 0) % 60).padStart(2, '0')} min
                   </p>
+                  {territory.user_id && territory.user_id !== user?.id && (
+                    <p className="text-xs text-orange-500 mt-1 font-medium">Captured by another player</p>
+                  )}
                 </div>
               </Popup>
             </Polygon>

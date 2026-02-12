@@ -1,15 +1,10 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Confetti from 'react-confetti';
-import { X, Gift, Ticket } from 'lucide-react';
+import { X, Gift, Ticket, Check } from 'lucide-react';
 import { Button } from './ui/button';
+import { toast } from 'sonner';
 
-// MuscleBlaze logo
-const MUSCLEBLAZE_LOGO = 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/puq75076_unnamed.png';
-
-// Scratch card icons for the cover
-const SCRATCH_ICONS = ['🏆', '💪', '🎁', '💰', '⭐', '🎯', '🔥', '💎'];
-
-const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
+const ScratchCard = ({ isOpen, onClose, territory }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [isScratching, setIsScratching] = useState(false);
@@ -17,13 +12,17 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
   const [isRevealed, setIsRevealed] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  const logoImageRef = useRef(null);
 
-  // Prize data
-  const prize = {
-    discount: '₹500 OFF',
-    code: 'CAPTURE500',
-    description: 'on your next MuscleBlaze order',
-    validity: 'Valid till Dec 31, 2026',
+  // Get brand info from territory
+  const brandName = territory?.brand || 'Brand';
+  const brandColor = territory?.color || '#FFD700';
+  const logoUrl = territory?.logoUrl;
+  const prize = territory?.prize || { 
+    discount: '₹500 OFF', 
+    code: 'CAPTURE500', 
+    description: 'on your next order',
   };
 
   // Update window size for confetti
@@ -39,49 +38,110 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Initialize canvas with scratch cover
+  // Load brand logo image
   useEffect(() => {
-    if (!isOpen || !canvasRef.current) return;
+    if (!isOpen || !logoUrl) return;
+    
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      logoImageRef.current = img;
+      setLogoLoaded(true);
+    };
+    img.onerror = () => {
+      setLogoLoaded(true); // Still continue even if logo fails
+    };
+    img.src = logoUrl;
+    
+    return () => {
+      setLogoLoaded(false);
+    };
+  }, [isOpen, logoUrl]);
+
+  // Initialize canvas with brand logo as scratch cover
+  useEffect(() => {
+    if (!isOpen || !canvasRef.current || !logoLoaded) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     
-    canvas.width = rect.width * window.devicePixelRatio;
-    canvas.height = rect.height * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    // High DPI support
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
 
-    // Draw scratch cover - gradient blue background with pattern
-    const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
-    gradient.addColorStop(0, '#3B82F6');
-    gradient.addColorStop(0.5, '#2563EB');
-    gradient.addColorStop(1, '#1D4ED8');
-    
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, rect.width, rect.height);
-
-    // Add decorative pattern
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.font = '24px Arial';
-    
-    for (let i = 0; i < 50; i++) {
-      const x = Math.random() * rect.width;
-      const y = Math.random() * rect.height;
-      const icon = SCRATCH_ICONS[Math.floor(Math.random() * SCRATCH_ICONS.length)];
-      ctx.fillText(icon, x, y);
+    // Draw the brand logo as the scratch layer
+    if (logoImageRef.current) {
+      // Fill with brand color first as fallback
+      ctx.fillStyle = brandColor;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      
+      // Draw logo centered and covering the area
+      const img = logoImageRef.current;
+      const imgAspect = img.width / img.height;
+      const canvasAspect = rect.width / rect.height;
+      
+      let drawWidth, drawHeight, drawX, drawY;
+      
+      // Cover the entire canvas (like CSS background-size: cover)
+      if (imgAspect > canvasAspect) {
+        drawHeight = rect.height;
+        drawWidth = drawHeight * imgAspect;
+        drawX = (rect.width - drawWidth) / 2;
+        drawY = 0;
+      } else {
+        drawWidth = rect.width;
+        drawHeight = drawWidth / imgAspect;
+        drawX = 0;
+        drawY = (rect.height - drawHeight) / 2;
+      }
+      
+      ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+      
+      // Add semi-transparent overlay for scratch effect
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      
+      // Add "Scratch Me!" hint text
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.font = 'bold 16px Oswald, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Text shadow effect
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      
+      ctx.fillText('✨ SCRATCH ME! ✨', rect.width / 2, rect.height / 2);
+      
+      // Reset shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+    } else {
+      // Fallback: Draw brand color with text if no logo
+      ctx.fillStyle = brandColor;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 24px Oswald, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(brandName.toUpperCase(), rect.width / 2, rect.height / 2 - 15);
+      ctx.font = '14px Inter, sans-serif';
+      ctx.fillText('✨ Scratch to Reveal! ✨', rect.width / 2, rect.height / 2 + 20);
     }
-
-    // Add "Scratch to Reveal" text
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.font = 'bold 20px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('🎁 Scratch to Reveal!', rect.width / 2, rect.height / 2);
 
     // Reset state
     setScratchPercent(0);
     setIsRevealed(false);
     setShowConfetti(false);
-  }, [isOpen]);
+  }, [isOpen, logoLoaded, brandColor, brandName]);
 
   // Calculate scratch percentage
   const calculateScratchPercent = useCallback(() => {
@@ -111,6 +171,7 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
     
     let x, y;
     if (e.touches) {
@@ -121,24 +182,33 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
       y = e.clientY - rect.top;
     }
 
-    // Erase area
+    // Scale for high DPI
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    
+    // Erase area with circular brush
     ctx.globalCompositeOperation = 'destination-out';
     ctx.beginPath();
-    ctx.arc(x, y, 30, 0, Math.PI * 2);
+    ctx.arc(x * dpr, y * dpr, 35 * dpr, 0, Math.PI * 2);
     ctx.fill();
+    
+    ctx.restore();
 
     // Calculate and update scratch percent
     const percent = calculateScratchPercent();
     setScratchPercent(percent);
 
-    // Check if enough is scratched
+    // Check if enough is scratched (>50%)
     if (percent > 50 && !isRevealed) {
       setIsRevealed(true);
       setShowConfetti(true);
       
       // Fade out remaining cover
       setTimeout(() => {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
       }, 300);
     }
   }, [isScratching, isRevealed, calculateScratchPercent]);
@@ -159,7 +229,9 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
   // Copy coupon code
   const handleCopyCode = () => {
     navigator.clipboard.writeText(prize.code);
-    // Could add toast here
+    toast.success('Coupon code copied!', {
+      description: prize.code,
+    });
   };
 
   if (!isOpen) return null;
@@ -177,7 +249,7 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
           recycle={false}
           numberOfPieces={500}
           gravity={0.3}
-          colors={['#F59E0B', '#EAB308', '#FFD700', '#FFA500', '#3B82F6', '#22C55E']}
+          colors={[brandColor, '#FFD700', '#FFA500', '#3B82F6', '#22C55E', '#A855F7']}
         />
       )}
 
@@ -198,42 +270,47 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header */}
-        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+        {/* Header with brand color */}
+        <div 
+          className="px-6 py-4"
+          style={{ background: `linear-gradient(135deg, ${brandColor}, ${adjustColor(brandColor, -20)})` }}
+        >
           <div className="flex items-center gap-3">
-            <img 
-              src={MUSCLEBLAZE_LOGO} 
-              alt={brandName}
-              className="w-12 h-12 object-contain bg-white rounded-xl p-1"
-            />
+            {logoUrl && (
+              <img 
+                src={logoUrl} 
+                alt={brandName}
+                className="w-12 h-12 object-cover bg-white rounded-xl"
+              />
+            )}
             <div>
-              <h2 className="text-white font-bold text-lg font-heading">Territory Captured!</h2>
-              <p className="text-white/80 text-sm">You earned a reward from {brandName}</p>
+              <h2 className="text-white font-bold text-lg font-heading drop-shadow-md">Territory Captured!</h2>
+              <p className="text-white/90 text-sm">You earned a reward from {brandName}</p>
             </div>
           </div>
         </div>
 
         {/* Scratch Area Container */}
         <div className="p-6">
-          <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-secondary">
+          <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-secondary border-2 border-dashed border-border">
             {/* Prize Layer (Bottom) - Always visible underneath */}
             <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-              <Gift className="w-12 h-12 text-amber-500 mb-2" />
-              <p className="text-3xl font-bold text-amber-600 font-heading">{prize.discount}</p>
+              <Gift className="w-10 h-10 text-amber-500 mb-2" />
+              <p className="text-2xl font-bold font-heading" style={{ color: brandColor }}>{prize.discount}</p>
               <p className="text-sm text-muted-foreground mt-1">{prize.description}</p>
               
               {/* Coupon Code */}
-              <div className="mt-4 bg-white dark:bg-card border-2 border-dashed border-amber-400 rounded-xl px-4 py-2">
+              <div className="mt-3 bg-white dark:bg-card border-2 border-dashed border-amber-400 rounded-xl px-4 py-2">
                 <div className="flex items-center gap-2">
                   <Ticket className="w-5 h-5 text-amber-500" />
                   <span className="font-mono font-bold text-lg text-foreground">{prize.code}</span>
                 </div>
               </div>
               
-              <p className="text-xs text-muted-foreground mt-2">{prize.validity}</p>
+              <p className="text-xs text-muted-foreground mt-2">Valid till Dec 31, 2026</p>
             </div>
 
-            {/* Scratch Canvas (Top) */}
+            {/* Scratch Canvas (Top) - Brand Logo as surface */}
             <canvas
               ref={canvasRef}
               className="absolute inset-0 w-full h-full cursor-crosshair touch-none"
@@ -253,8 +330,11 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
             <div className="mt-3">
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-200"
-                  style={{ width: `${Math.min(scratchPercent * 2, 100)}%` }}
+                  className="h-full transition-all duration-200"
+                  style={{ 
+                    width: `${Math.min(scratchPercent * 2, 100)}%`,
+                    background: `linear-gradient(90deg, ${brandColor}, ${adjustColor(brandColor, 20)})`
+                  }}
                 />
               </div>
               <p className="text-xs text-muted-foreground text-center mt-1">
@@ -268,8 +348,10 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
             <div className="mt-4 space-y-3 animate-fade-in">
               <Button
                 onClick={handleCopyCode}
-                className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold rounded-xl"
+                className="w-full h-12 font-semibold rounded-xl text-white"
+                style={{ background: `linear-gradient(135deg, ${brandColor}, ${adjustColor(brandColor, -20)})` }}
               >
+                <Check className="w-5 h-5 mr-2" />
                 Copy Coupon Code
               </Button>
               <Button
@@ -286,5 +368,15 @@ const ScratchCard = ({ isOpen, onClose, brandName = 'MuscleBlaze' }) => {
     </div>
   );
 };
+
+// Helper function to adjust color brightness
+function adjustColor(hex, percent) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = Math.min(255, Math.max(0, (num >> 16) + amt));
+  const G = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amt));
+  const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+}
 
 export default ScratchCard;

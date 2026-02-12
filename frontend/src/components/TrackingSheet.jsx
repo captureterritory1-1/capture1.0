@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { Progress } from '../components/ui/progress';
 import { Play, Square, Route, Clock, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -21,14 +20,14 @@ const TrackingSheet = ({
   onCancelEnd,
 }) => {
   return (
-    <div className="absolute bottom-20 left-0 right-0 z-[500] px-4">
+    <div className="absolute bottom-4 left-0 right-0 z-[500] px-4">
       <Card className="floating-sheet border-0 overflow-hidden">
         <CardContent className="p-4">
           {/* Confirm End Modal */}
           {showConfirmEnd && (
             <div className="animate-fade-in mb-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-heading font-semibold text-foreground">Finish Run?</h3>
+                <h3 className="font-heading font-semibold text-foreground">Finish Capture?</h3>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -66,6 +65,9 @@ const TrackingSheet = ({
                   />
                 )}
               </div>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Returns to start = Territory • Otherwise = Run saved
+              </p>
             </div>
           )}
 
@@ -77,7 +79,7 @@ const TrackingSheet = ({
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-heading font-semibold text-foreground">
-                {isTracking ? 'Tracking...' : 'Ready to Run'}
+                {isTracking ? 'Capturing...' : 'Ready to Capture'}
               </h3>
               {isTracking && (
                 <div className="flex items-center gap-1.5">
@@ -123,7 +125,7 @@ const TrackingSheet = ({
                     className="w-full h-14 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     <Play className="w-5 h-5 mr-2 fill-current" />
-                    Start Run
+                    Start Capture
                   </Button>
                 ) : (
                   <Button
@@ -132,7 +134,7 @@ const TrackingSheet = ({
                     className="w-full h-14 border-2 border-foreground text-foreground hover:bg-foreground hover:text-background font-semibold text-base rounded-xl transition-all duration-200"
                   >
                     <Square className="w-5 h-5 mr-2 fill-current" />
-                    End Run
+                    End Capture
                   </Button>
                 )}
               </>

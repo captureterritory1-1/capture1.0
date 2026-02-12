@@ -203,12 +203,10 @@ const ProfilePage = () => {
           Log Out
         </Button>
 
-        <p className="text-center text-xs text-muted-foreground mt-4">
+        <p className="text-center text-xs text-muted-foreground mt-4 pb-4">
           CAPTURE v1.0.0
         </p>
       </div>
-
-      <BottomNavigation />
     </div>
   );
 };

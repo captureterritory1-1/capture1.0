@@ -216,8 +216,6 @@ const FriendsPage = () => {
           </TabsContent>
         </Tabs>
       </div>
-
-      <BottomNavigation />
     </div>
   );
 };

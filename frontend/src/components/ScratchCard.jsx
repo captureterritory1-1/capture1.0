@@ -84,7 +84,7 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
     if (!isOpen || !canvasRef.current || !logoLoaded) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const rect = canvas.getBoundingClientRect();
     
     // High DPI support

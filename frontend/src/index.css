@@ -308,9 +308,14 @@ code {
         padding-top: max(0.5rem, env(safe-area-inset-top));
     }
     
-    /* Glass effect */
+    /* Glass effect - Light mode */
     .glass {
         @apply bg-white/80 backdrop-blur-lg;
+    }
+    
+    /* Glass effect - adapts to dark mode */
+    .dark .glass {
+        @apply bg-black/60 backdrop-blur-lg;
     }
     
     /* Text gradient */
@@ -319,6 +324,11 @@ code {
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+    }
+    
+    /* Theme transition */
+    .theme-transition {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 }
 

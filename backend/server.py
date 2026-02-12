@@ -252,6 +252,36 @@ async def delete_territory(territory_id: str):
     return {"message": "Territory deleted successfully"}
 
 
+# Territory Claiming (Over-capture)
+class ClaimTerritoryRequest(BaseModel):
+    new_owner_id: str
+    new_color: str
+
+@api_router.put("/territories/{territory_id}/claim")
+async def claim_territory(territory_id: str, request: ClaimTerritoryRequest):
+    """Claim/over-capture an existing territory"""
+    # Find the territory
+    territory = await db.territories.find_one({"id": territory_id})
+    if not territory:
+        raise HTTPException(status_code=404, detail="Territory not found")
+    
+    # Update the owner and color
+    result = await db.territories.update_one(
+        {"id": territory_id},
+        {"$set": {
+            "user_id": request.new_owner_id,
+            "color": request.new_color,
+            "claimed_at": datetime.now(timezone.utc).isoformat(),
+            "previous_owner": territory.get("user_id")
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to claim territory")
+    
+    return {"success": True, "message": "Territory claimed successfully"}
+
+
 # ========================
 # Image Proxy Route (for CORS)
 # ========================

@@ -193,7 +193,7 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
     if (!isScratching || !canvasRef.current || isRevealed) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     

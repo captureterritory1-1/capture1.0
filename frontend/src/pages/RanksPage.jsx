@@ -174,8 +174,6 @@ const RanksPage = () => {
           )}
         </div>
       </div>
-
-      <BottomNavigation />
     </div>
   );
 };

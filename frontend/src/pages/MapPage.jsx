@@ -3,10 +3,12 @@ import { MapContainer, TileLayer, Polyline, Polygon, Marker, Popup, useMap } fro
 import L from 'leaflet';
 import { useGame } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
-import BottomNavigation from '../components/BottomNavigation';
 import TrackingSheet from '../components/TrackingSheet';
 import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
+
+// MuscleBlaze logo URL
+const MUSCLEBLAZE_LOGO = 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/puq75076_unnamed.png';
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,10 +18,38 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// Custom marker for current position
-const createPulsingIcon = (color) => {
+// Blue Dot marker for user's current position (always visible)
+const createBlueDotIcon = () => {
   return L.divIcon({
-    className: 'custom-pulsing-marker',
+    className: 'blue-dot-marker',
+    html: `
+      <div style="
+        width: 20px;
+        height: 20px;
+        background: #3B82F6;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5), 0 0 0 1px rgba(0,0,0,0.1);
+        position: relative;
+      ">
+        <div style="
+          position: absolute;
+          inset: -10px;
+          border: 2px solid rgba(59, 130, 246, 0.4);
+          border-radius: 50%;
+          animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        "></div>
+      </div>
+    `,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+};
+
+// Capture mode marker (shows user's territory color while tracking)
+const createCaptureIcon = (color) => {
+  return L.divIcon({
+    className: 'capture-marker',
     html: `
       <div style="
         width: 24px;
@@ -27,16 +57,24 @@ const createPulsingIcon = (color) => {
         background: ${color};
         border: 3px solid white;
         border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.3), 0 0 20px ${color}40;
         position: relative;
       ">
         <div style="
           position: absolute;
           inset: -8px;
+          border: 3px solid ${color};
+          border-radius: 50%;
+          opacity: 0.6;
+          animation: pulse-ring 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        "></div>
+        <div style="
+          position: absolute;
+          inset: -16px;
           border: 2px solid ${color};
           border-radius: 50%;
-          opacity: 0.5;
-          animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          opacity: 0.3;
+          animation: pulse-ring 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite 0.3s;
         "></div>
       </div>
     `,
@@ -45,38 +83,58 @@ const createPulsingIcon = (color) => {
   });
 };
 
-// Brand marker icon
-const createBrandIcon = () => {
+// MuscleBlaze brand marker with logo
+const createBrandLogoIcon = () => {
   return L.divIcon({
-    className: 'brand-marker',
+    className: 'brand-logo-marker',
     html: `
       <div style="
-        background: linear-gradient(135deg, #FFD700, #FFA500);
-        color: #000;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 600;
-        white-space: nowrap;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
       ">
-        MuscleBlaze
+        <img 
+          src="${MUSCLEBLAZE_LOGO}" 
+          alt="MuscleBlaze" 
+          style="
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+            opacity: 0.9;
+          "
+        />
+        <div style="
+          background: linear-gradient(135deg, #FFD700, #FFA500);
+          color: #000;
+          padding: 3px 8px;
+          border-radius: 10px;
+          font-size: 9px;
+          font-weight: 700;
+          white-space: nowrap;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        ">
+          MuscleBlaze Zone
+        </div>
       </div>
     `,
-    iconSize: [80, 24],
-    iconAnchor: [40, 12],
+    iconSize: [80, 70],
+    iconAnchor: [40, 35],
   });
 };
 
-// Map controller component
-const MapController = ({ center, isTracking }) => {
+// Map controller component - follows user when tracking
+const MapController = ({ center, isTracking, shouldCenter }) => {
   const map = useMap();
   
   useEffect(() => {
-    if (center && isTracking) {
+    if (center && (isTracking || shouldCenter)) {
       map.setView(center, map.getZoom(), { animate: true });
     }
-  }, [center, isTracking, map]);
+  }, [center, isTracking, shouldCenter, map]);
   
   return null;
 };
@@ -102,27 +160,20 @@ const MapPage = () => {
   const { user } = useAuth();
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
+  const [initialCentered, setInitialCentered] = useState(false);
   const holdTimerRef = useRef(null);
 
-  // Request geolocation permission on mount
+  // Center map on user's position once when they first load
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('Location access granted');
-        },
-        (error) => {
-          console.error('Location error:', error);
-          toast.error('Please enable location access to use CAPTURE');
-        }
-      );
+    if (currentPosition && !initialCentered) {
+      setInitialCentered(true);
     }
-  }, []);
+  }, [currentPosition, initialCentered]);
 
   const handleStartRun = () => {
     const started = startTracking();
     if (started) {
-      toast.success('Tracking started! Start running to capture territory.');
+      toast.success('Capture started! Run a loop to claim territory.');
     } else {
       toast.error('Could not start tracking. Please check location permissions.');
     }
@@ -160,6 +211,10 @@ const MapPage = () => {
       toast.success(result.message, {
         description: `Area: ${(result.territory.area * 1000000).toFixed(0)} sq meters`,
       });
+    } else if (result.isRun) {
+      toast.info(result.message, {
+        description: `Distance: ${result.run?.distance?.toFixed(2) || 0} km`,
+      });
     } else {
       toast.error(result.message);
     }
@@ -184,9 +239,9 @@ const MapPage = () => {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col bg-background overflow-hidden">
-      {/* Map Container */}
-      <div className="flex-1 relative">
+    <div className="fixed inset-0 flex flex-col bg-background" style={{ height: '100dvh' }}>
+      {/* Map Container - Takes all available space above nav */}
+      <div className="flex-1 relative pb-20">
         <MapContainer
           center={mapCenter}
           zoom={15}
@@ -200,10 +255,14 @@ const MapPage = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           
-          {/* Map Controller */}
-          <MapController center={currentPosition || mapCenter} isTracking={isTracking} />
+          {/* Map Controller - centers on user */}
+          <MapController 
+            center={currentPosition || mapCenter} 
+            isTracking={isTracking} 
+            shouldCenter={!initialCentered && currentPosition}
+          />
           
-          {/* Brand Territories (MuscleBlaze) */}
+          {/* Brand Territories (MuscleBlaze) with Logo */}
           {brandTerritories.map((territory) => (
             <React.Fragment key={territory.id}>
               <Polygon
@@ -211,21 +270,27 @@ const MapPage = () => {
                 pathOptions={{
                   color: territory.color,
                   fillColor: territory.color,
-                  fillOpacity: 0.25,
+                  fillOpacity: 0.2,
                   weight: 3,
-                  dashArray: '5, 10',
+                  dashArray: '8, 8',
                 }}
               >
                 <Popup>
-                  <div className="text-center">
+                  <div className="text-center p-2">
+                    <img 
+                      src={MUSCLEBLAZE_LOGO} 
+                      alt="MuscleBlaze" 
+                      className="w-12 h-12 mx-auto mb-2 object-contain"
+                    />
                     <p className="font-bold text-sm">{territory.name}</p>
-                    <p className="text-xs text-muted-foreground">Sponsored Zone</p>
+                    <p className="text-xs text-gray-500">Sponsored Zone</p>
                   </div>
                 </Popup>
               </Polygon>
+              {/* MuscleBlaze Logo Marker at center */}
               <Marker
                 position={getPolygonCenter(territory.coordinates)}
-                icon={createBrandIcon()}
+                icon={createBrandLogoIcon()}
               />
             </React.Fragment>
           ))}
@@ -245,7 +310,7 @@ const MapPage = () => {
               <Popup>
                 <div className="text-center">
                   <p className="font-bold text-sm">{territory.name}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-500">
                     {(territory.area * 1000000).toFixed(0)} sq m
                   </p>
                 </div>
@@ -253,54 +318,54 @@ const MapPage = () => {
             </Polygon>
           ))}
           
-          {/* Current tracking path */}
+          {/* Current tracking path (polyline) */}
           {currentPath.length > 1 && (
             <Polyline
               positions={currentPath}
               pathOptions={{
                 color: userPreferences.territoryColor.hex,
-                weight: 4,
-                opacity: 0.8,
+                weight: 5,
+                opacity: 0.85,
                 lineCap: 'round',
                 lineJoin: 'round',
               }}
             />
           )}
           
-          {/* Current position marker */}
+          {/* Current position marker - ALWAYS VISIBLE */}
           {currentPosition && (
             <Marker
               position={currentPosition}
-              icon={createPulsingIcon(userPreferences.territoryColor.hex)}
+              icon={isTracking 
+                ? createCaptureIcon(userPreferences.territoryColor.hex) 
+                : createBlueDotIcon()
+              }
             />
           )}
         </MapContainer>
         
         {/* Attribution overlay */}
-        <div className="absolute bottom-28 left-2 text-xs text-muted-foreground/60 z-[400]">
+        <div className="absolute bottom-24 left-2 text-xs text-muted-foreground/60 z-[400]">
           © OpenStreetMap
         </div>
+        
+        {/* Tracking Sheet - floats above bottom nav */}
+        <TrackingSheet
+          isTracking={isTracking}
+          elapsedTime={elapsedTime}
+          totalDistance={totalDistance}
+          formatTime={formatTime}
+          formatDistance={formatDistance}
+          unit={userPreferences.unit}
+          onStartRun={handleStartRun}
+          onEndRun={handleEndRun}
+          showConfirmEnd={showConfirmEnd}
+          holdProgress={holdProgress}
+          onHoldStart={handleHoldStart}
+          onHoldEnd={handleHoldEnd}
+          onCancelEnd={handleCancelEnd}
+        />
       </div>
-
-      {/* Tracking Sheet */}
-      <TrackingSheet
-        isTracking={isTracking}
-        elapsedTime={elapsedTime}
-        totalDistance={totalDistance}
-        formatTime={formatTime}
-        formatDistance={formatDistance}
-        unit={userPreferences.unit}
-        onStartRun={handleStartRun}
-        onEndRun={handleEndRun}
-        showConfirmEnd={showConfirmEnd}
-        holdProgress={holdProgress}
-        onHoldStart={handleHoldStart}
-        onHoldEnd={handleHoldEnd}
-        onCancelEnd={handleCancelEnd}
-      />
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </div>
   );
 };

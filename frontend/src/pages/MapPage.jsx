@@ -4,7 +4,9 @@ import L from 'leaflet';
 import { useGame } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
 import TrackingSheet from '../components/TrackingSheet';
+import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
+import { Crosshair, Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 // MuscleBlaze logo URL
@@ -83,7 +85,7 @@ const createCaptureIcon = (color) => {
   });
 };
 
-// MuscleBlaze brand marker with logo
+// MuscleBlaze brand marker with logo - clickable
 const createBrandLogoIcon = () => {
   return L.divIcon({
     className: 'brand-logo-marker',
@@ -93,6 +95,7 @@ const createBrandLogoIcon = () => {
         flex-direction: column;
         align-items: center;
         gap: 4px;
+        cursor: pointer;
       ">
         <img 
           src="${MUSCLEBLAZE_LOGO}" 
@@ -126,8 +129,8 @@ const createBrandLogoIcon = () => {
   });
 };
 
-// Map controller component - follows user when tracking
-const MapController = ({ center, isTracking, shouldCenter }) => {
+// Map controller component - follows user when tracking + handles flyTo
+const MapController = ({ center, isTracking, shouldCenter, flyToTarget, onFlyComplete }) => {
   const map = useMap();
   
   useEffect(() => {
@@ -136,7 +139,41 @@ const MapController = ({ center, isTracking, shouldCenter }) => {
     }
   }, [center, isTracking, shouldCenter, map]);
   
+  // Handle fly-to requests
+  useEffect(() => {
+    if (flyToTarget) {
+      map.flyTo(flyToTarget.position, flyToTarget.zoom || 16, {
+        duration: 1.5
+      });
+      if (onFlyComplete) {
+        setTimeout(onFlyComplete, 1500);
+      }
+    }
+  }, [flyToTarget, map, onFlyComplete]);
+  
   return null;
+};
+
+// Re-center button component that uses the map
+const RecenterButton = ({ userPosition, onClick }) => {
+  const map = useMap();
+  
+  const handleRecenter = () => {
+    if (userPosition) {
+      map.flyTo(userPosition, 16, { duration: 1 });
+      if (onClick) onClick();
+    }
+  };
+  
+  return (
+    <button
+      onClick={handleRecenter}
+      className="absolute top-4 right-4 z-[500] w-11 h-11 bg-card rounded-full shadow-lg flex items-center justify-center hover:bg-secondary transition-colors active:scale-95"
+      title="Re-center on my location"
+    >
+      <Navigation className="w-5 h-5 text-foreground" />
+    </button>
+  );
 };
 
 const MapPage = () => {
@@ -161,6 +198,7 @@ const MapPage = () => {
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
   const [initialCentered, setInitialCentered] = useState(false);
+  const [flyToTarget, setFlyToTarget] = useState(null);
   const holdTimerRef = useRef(null);
 
   // Center map on user's position once when they first load
@@ -238,6 +276,21 @@ const MapPage = () => {
     ];
   };
 
+  // Fly to brand territory on click
+  const handleBrandClick = (territory) => {
+    const center = getPolygonCenter(territory.coordinates);
+    setFlyToTarget({
+      position: center,
+      zoom: 18
+    });
+    toast.info(`Flying to ${territory.name}`);
+  };
+
+  // Clear fly target after animation
+  const handleFlyComplete = () => {
+    setFlyToTarget(null);
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col bg-background" style={{ height: '100dvh' }}>
       {/* Map Container - Takes all available space above nav */}
@@ -255,14 +308,19 @@ const MapPage = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           
-          {/* Map Controller - centers on user */}
+          {/* Map Controller - centers on user + handles flyTo */}
           <MapController 
             center={currentPosition || mapCenter} 
             isTracking={isTracking} 
             shouldCenter={!initialCentered && currentPosition}
+            flyToTarget={flyToTarget}
+            onFlyComplete={handleFlyComplete}
           />
           
-          {/* Brand Territories (MuscleBlaze) with Logo */}
+          {/* Re-center Button (inside MapContainer for map access) */}
+          <RecenterButton userPosition={currentPosition} />
+          
+          {/* Brand Territories (MuscleBlaze) with Logo - Clickable */}
           {brandTerritories.map((territory) => (
             <React.Fragment key={territory.id}>
               <Polygon
@@ -274,6 +332,9 @@ const MapPage = () => {
                   weight: 3,
                   dashArray: '8, 8',
                 }}
+                eventHandlers={{
+                  click: () => handleBrandClick(territory),
+                }}
               >
                 <Popup>
                   <div className="text-center p-2">
@@ -284,13 +345,22 @@ const MapPage = () => {
                     />
                     <p className="font-bold text-sm">{territory.name}</p>
                     <p className="text-xs text-gray-500">Sponsored Zone</p>
+                    <button 
+                      onClick={() => handleBrandClick(territory)}
+                      className="mt-2 text-xs text-blue-600 hover:underline"
+                    >
+                      Zoom to Zone
+                    </button>
                   </div>
                 </Popup>
               </Polygon>
-              {/* MuscleBlaze Logo Marker at center */}
+              {/* MuscleBlaze Logo Marker at center - Clickable */}
               <Marker
                 position={getPolygonCenter(territory.coordinates)}
                 icon={createBrandLogoIcon()}
+                eventHandlers={{
+                  click: () => handleBrandClick(territory),
+                }}
               />
             </React.Fragment>
           ))}

@@ -448,10 +448,16 @@ test_plan:
         comment: "✅ UI POLISH PARTIALLY VERIFIED: Oswald font confirmed working for headings (font-family: Oswald, sans-serif detected). Cannot fully test glassmorphism effects due to authentication blocking access to main app pages. No Made with Emergent badge found in login page. Partial success - font implementation working correctly."
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Dark/Light Mode Toggle"
+    - "Start Capture Button Styling"
+    - "MuscleBlaze Scratch Card"
   stuck_tasks:
     - "GPS Blue Dot Immediately Visible"
     - "Fly-To Brand Feature"
+    - "Dark/Light Mode Toggle"
+    - "Start Capture Button Styling"
+    - "MuscleBlaze Scratch Card"
   test_all: false
   test_priority: "high_first"
 

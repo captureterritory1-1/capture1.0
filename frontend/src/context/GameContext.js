@@ -108,7 +108,8 @@ const BRAND_TERRITORIES = [
     brand: 'Super You',
     brandKey: 'SuperYou',
     color: '#EF4444', // Red (matches brand)
-    logoUrl: BRAND_LOGOS.SuperYou,
+    logoUrl: BRAND_LOGOS_DIRECT.SuperYou,
+    logoUrlProxied: getProxiedLogoUrl('SuperYou'),
     prize: BRAND_PRIZES.SuperYou,
     // Long rectangular block along 100ft Road Indiranagar
     coordinates: [
@@ -127,7 +128,8 @@ const BRAND_TERRITORIES = [
     brand: 'Super You',
     brandKey: 'SuperYou',
     color: '#EF4444',
-    logoUrl: BRAND_LOGOS.SuperYou,
+    logoUrl: BRAND_LOGOS_DIRECT.SuperYou,
+    logoUrlProxied: getProxiedLogoUrl('SuperYou'),
     prize: BRAND_PRIZES.SuperYou,
     // Block near Double Road intersection
     coordinates: [
@@ -148,7 +150,8 @@ const BRAND_TERRITORIES = [
     brand: 'The Whole Truth',
     brandKey: 'TheWholeTruth',
     color: '#6B21A8', // Purple (matches brand)
-    logoUrl: BRAND_LOGOS.TheWholeTruth,
+    logoUrl: BRAND_LOGOS_DIRECT.TheWholeTruth,
+    logoUrlProxied: getProxiedLogoUrl('TheWholeTruth'),
     prize: BRAND_PRIZES.TheWholeTruth,
     // Square park block in 5th Block Koramangala
     coordinates: [
@@ -167,7 +170,8 @@ const BRAND_TERRITORIES = [
     brand: 'The Whole Truth',
     brandKey: 'TheWholeTruth',
     color: '#6B21A8',
-    logoUrl: BRAND_LOGOS.TheWholeTruth,
+    logoUrl: BRAND_LOGOS_DIRECT.TheWholeTruth,
+    logoUrlProxied: getProxiedLogoUrl('TheWholeTruth'),
     prize: BRAND_PRIZES.TheWholeTruth,
     // Triangular junction block near Sony World Signal
     coordinates: [

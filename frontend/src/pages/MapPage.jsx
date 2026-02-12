@@ -92,8 +92,12 @@ const createCaptureIcon = (color) => {
   });
 };
 
-// MuscleBlaze brand marker with logo - clickable
-const createBrandLogoIcon = () => {
+// Brand marker with dynamic logo - clickable
+const createBrandLogoIcon = (territory) => {
+  const logoUrl = territory.logoUrl;
+  const brandColor = territory.color;
+  const brandName = territory.brand;
+  
   return L.divIcon({
     className: 'brand-logo-marker',
     html: `
@@ -105,19 +109,38 @@ const createBrandLogoIcon = () => {
         cursor: pointer;
       ">
         <img 
-          src="${MUSCLEBLAZE_LOGO}" 
-          alt="MuscleBlaze" 
+          src="${logoUrl}" 
+          alt="${brandName}" 
           style="
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
-            opacity: 0.9;
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 10px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+            border: 2px solid white;
           "
         />
         <div style="
-          background: linear-gradient(135deg, #FFD700, #FFA500);
-          color: #000;
+          background: ${brandColor};
+          color: white;
+          padding: 3px 8px;
+          border-radius: 10px;
+          font-size: 9px;
+          font-weight: 700;
+          white-space: nowrap;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        ">
+          ${brandName}
+        </div>
+      </div>
+    `,
+    iconSize: [80, 70],
+    iconAnchor: [40, 35],
+  });
+};
           padding: 3px 8px;
           border-radius: 10px;
           font-size: 9px;

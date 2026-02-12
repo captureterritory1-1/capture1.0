@@ -215,14 +215,81 @@ metadata:
   version: "1.0"
   test_sequence: 1
 
+  - task: "Navigation Always Visible"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/BottomNavigation.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify bottom navigation with 5 icons (Map, Ranks, center FAB, Friends, Profile) is ALWAYS visible on every page (/map, /ranks, /friends, /profile) and center FAB button is amber/yellow colored"
+
+  - task: "GPS Blue Dot Immediately Visible"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify user's location Blue Dot marker appears on Map page BEFORE clicking 'Start Capture' - should show immediately when map loads"
+
+  - task: "Capture Flow Logic"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/TrackingSheet.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify button says 'Start Capture' (not 'Start Run'), floating sheet says 'Ready to Capture' (not 'Ready to Run'), when tracking button says 'End Capture', and 'Hold to Finish' confirmation works"
+
+  - task: "MuscleBlaze Brand Territories"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify MuscleBlaze branded territories are visible with golden/yellow border and MuscleBlaze logo, located in Bangalore area (Indiranagar, Koramangala, HSR Layout)"
+
+  - task: "Mobile Viewport"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify app doesn't have unwanted scrolling, map fills available space, content not hidden behind bottom navigation on mobile viewport (390x844)"
+
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Navigation Always Visible"
+    - "GPS Blue Dot Immediately Visible"
+    - "Capture Flow Logic"
+    - "MuscleBlaze Brand Territories"
+    - "Mobile Viewport"
   stuck_tasks: []
   test_all: false
-  test_priority: "sequential"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "testing"
     message: "Starting comprehensive testing of CAPTURE territory conquest web app. Will test all major flows including login, setup wizard, map functionality, leaderboard, friends, profile, and navigation. Using test credentials as specified in review request."
   - agent: "testing"
     message: "✅ COMPREHENSIVE TESTING COMPLETED SUCCESSFULLY: All 7 major features tested and working correctly. Login flow with mock credentials functional, setup wizard 3-step process working, map page with CartoDB tiles and tracking UI operational, leaderboard with mock data displaying, friends page with search and tabs functional, profile page with stats and settings working, bottom navigation between all pages successful. Minor issue: Emergent badge overlay can occasionally interfere with navigation clicks but core functionality intact."
+  - agent: "testing"
+    message: "🔄 STARTING REFINEMENT TESTING: Testing specific CAPTURE app refinements - Navigation Always Visible, GPS Blue Dot Immediately Visible, Capture Flow Logic, MuscleBlaze Brand Territories, and Mobile Viewport. Will verify all fixes have been properly applied."

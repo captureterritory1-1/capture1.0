@@ -13,6 +13,7 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [logoLoaded, setLogoLoaded] = useState(false);
+  const [logoLoadError, setLogoLoadError] = useState(false);
   const logoImageRef = useRef(null);
 
   // Get brand info from territory

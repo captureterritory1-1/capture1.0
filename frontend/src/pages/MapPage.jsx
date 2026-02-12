@@ -370,8 +370,8 @@ const MapPage = () => {
             </React.Fragment>
           ))}
           
-          {/* User Territories */}
-          {userTerritories.map((territory) => (
+          {/* User Territories (all users from server + local) */}
+          {displayTerritories.map((territory) => (
             <Polygon
               key={territory.id}
               positions={territory.coordinates.map(([lng, lat]) => [lat, lng])}

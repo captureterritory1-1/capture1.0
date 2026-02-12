@@ -480,6 +480,7 @@ export const GameProvider = ({ children }) => {
   const value = {
     // State
     userTerritories,
+    allTerritories, // All territories from all users (multi-user view)
     savedRuns,
     brandTerritories: BRAND_TERRITORIES,
     isTracking,
@@ -490,6 +491,7 @@ export const GameProvider = ({ children }) => {
     mapCenter,
     userPreferences,
     territoryColors: TERRITORY_COLORS,
+    isLoadingTerritories,
     
     // Actions
     startTracking,
@@ -498,6 +500,7 @@ export const GameProvider = ({ children }) => {
     updatePreferences,
     setMapCenter,
     setCurrentPosition,
+    fetchAllTerritories,
     
     // Utilities
     formatTime,

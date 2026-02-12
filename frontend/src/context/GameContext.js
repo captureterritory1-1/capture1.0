@@ -191,6 +191,18 @@ export const GameProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [isTracking, trackingStartTime]);
 
+  // Calculate path distance using turf.length for accuracy
+  const calculatePathDistance = useCallback((path) => {
+    if (path.length < 2) return 0;
+    
+    // Convert path to GeoJSON LineString format [lng, lat]
+    const lineCoords = path.map(([lat, lng]) => [lng, lat]);
+    const line = turf.lineString(lineCoords);
+    
+    // Calculate total length in kilometers
+    return turf.length(line, { units: 'kilometers' });
+  }, []);
+
   // Calculate distance between two points
   const calculateDistance = useCallback((point1, point2) => {
     const from = turf.point([point1[1], point1[0]]);
@@ -230,8 +242,11 @@ export const GameProvider = ({ children }) => {
             
             // Only add point if moved more than 5 meters (to filter GPS noise)
             if (dist > 0.005) {
-              setTotalDistance((prevDist) => prevDist + dist);
-              return [...prev, newPoint];
+              const newPath = [...prev, newPoint];
+              // Use turf.length for accurate total distance
+              const totalDist = calculatePathDistance(newPath);
+              setTotalDistance(totalDist);
+              return newPath;
             }
             return prev;
           }
@@ -250,7 +265,7 @@ export const GameProvider = ({ children }) => {
 
     setCaptureWatchId(id);
     return true;
-  }, [calculateDistance, currentPosition]);
+  }, [calculateDistance, calculatePathDistance, currentPosition]);
 
   // Stop tracking - just stops, doesn't analyze
   const stopTracking = useCallback(() => {

@@ -11,8 +11,8 @@ export const useGame = () => {
   return context;
 };
 
-// Bangalore center coordinates
-const BANGALORE_CENTER = [12.9716, 77.5946];
+// Bangalore center coordinates - Indiranagar area (where brand territories are)
+const BANGALORE_CENTER = [12.9750, 77.6380];
 
 // Brand logos
 const BRAND_LOGOS = {

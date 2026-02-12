@@ -352,6 +352,78 @@ async def get_brand_territories():
 
 
 # ========================
+# Profile Picture Routes
+# ========================
+
+class ProfilePictureResponse(BaseModel):
+    success: bool
+    url: str
+    message: str
+
+@api_router.post("/profile-picture/{user_id}", response_model=ProfilePictureResponse)
+async def upload_profile_picture(user_id: str, file: UploadFile = File(...)):
+    """Upload a profile picture for a user"""
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.")
+    
+    # Read and encode file
+    contents = await file.read()
+    
+    # Check file size (max 5MB)
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum size is 5MB.")
+    
+    # Encode as base64 for storage
+    base64_image = base64.b64encode(contents).decode('utf-8')
+    data_url = f"data:{file.content_type};base64,{base64_image}"
+    
+    # Store in MongoDB
+    result = await db.profile_pictures.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "user_id": user_id,
+            "image_data": data_url,
+            "content_type": file.content_type,
+            "filename": file.filename,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }},
+        upsert=True
+    )
+    
+    return ProfilePictureResponse(
+        success=True,
+        url=data_url,
+        message="Profile picture uploaded successfully"
+    )
+
+@api_router.get("/profile-picture/{user_id}")
+async def get_profile_picture(user_id: str):
+    """Get a user's profile picture"""
+    profile = await db.profile_pictures.find_one({"user_id": user_id}, {"_id": 0})
+    
+    if not profile:
+        return {"success": False, "url": None, "message": "No profile picture found"}
+    
+    return {
+        "success": True,
+        "url": profile.get("image_data"),
+        "message": "Profile picture retrieved"
+    }
+
+@api_router.delete("/profile-picture/{user_id}")
+async def delete_profile_picture(user_id: str):
+    """Delete a user's profile picture"""
+    result = await db.profile_pictures.delete_one({"user_id": user_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Profile picture not found")
+    
+    return {"success": True, "message": "Profile picture deleted"}
+
+
+# ========================
 # Leaderboard Routes
 # ========================
 

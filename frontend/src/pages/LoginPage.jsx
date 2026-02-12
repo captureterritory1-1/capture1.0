@@ -212,11 +212,11 @@ const LoginPage = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-14 bg-black text-white hover:bg-gray-900 font-bold text-lg rounded-xl uppercase tracking-wide"
+                className="w-full h-14 bg-white text-black hover:bg-gray-100 font-bold text-lg rounded-xl uppercase tracking-wide"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin text-black" />
                     Creating account...
                   </>
                 ) : (

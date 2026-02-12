@@ -52,8 +52,8 @@ const TrackingSheet = ({
 
   return (
     <div 
-      className="absolute bottom-4 left-0 right-0 px-4"
-      style={{ zIndex: 9999, position: 'relative' }}
+      className="absolute left-0 right-0 px-4"
+      style={{ zIndex: 9999, position: 'absolute', bottom: '88px' }}
       onClick={(e) => e.stopPropagation()}
     >
       <Card className="floating-sheet border-0 overflow-hidden">

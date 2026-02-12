@@ -356,7 +356,7 @@ const MapPage = () => {
           {/* Re-center Button (inside MapContainer for map access) */}
           <RecenterButton userPosition={currentPosition} />
           
-          {/* Brand Territories (MuscleBlaze) with Logo - Clickable */}
+          {/* Brand Territories with Logos - Clickable */}
           {brandTerritories.map((territory) => (
             <React.Fragment key={territory.id}>
               <Polygon
@@ -364,7 +364,7 @@ const MapPage = () => {
                 pathOptions={{
                   color: territory.color,
                   fillColor: territory.color,
-                  fillOpacity: 0.2,
+                  fillOpacity: 0.25,
                   weight: 3,
                   dashArray: '8, 8',
                 }}
@@ -375,28 +375,28 @@ const MapPage = () => {
                 <Popup>
                   <div className="text-center p-2">
                     <img 
-                      src={MUSCLEBLAZE_LOGO} 
-                      alt="MuscleBlaze" 
-                      className="w-12 h-12 mx-auto mb-2 object-contain"
+                      src={territory.logoUrl} 
+                      alt={territory.brand} 
+                      className="w-12 h-12 mx-auto mb-2 object-cover rounded-lg"
                     />
                     <p className="font-bold text-sm">{territory.name}</p>
-                    <p className="text-xs text-gray-500">Sponsored Zone</p>
+                    <p className="text-xs text-gray-500">Sponsored Zone • {territory.brand}</p>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         handleBrandClick(territory);
                       }}
-                      className="mt-2 text-xs text-blue-600 hover:underline"
+                      className="mt-2 text-xs text-blue-600 hover:underline font-semibold"
                     >
                       Claim Reward 🎁
                     </button>
                   </div>
                 </Popup>
               </Polygon>
-              {/* MuscleBlaze Logo Marker at center - Clickable */}
+              {/* Brand Logo Marker at center - Clickable */}
               <Marker
                 position={getPolygonCenter(territory.coordinates)}
-                icon={createBrandLogoIcon()}
+                icon={createBrandLogoIcon(territory)}
                 eventHandlers={{
                   click: () => handleBrandClick(territory),
                 }}

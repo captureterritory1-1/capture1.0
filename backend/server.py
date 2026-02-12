@@ -252,6 +252,47 @@ async def delete_territory(territory_id: str):
 
 
 # ========================
+# Image Proxy Route (for CORS)
+# ========================
+
+@api_router.get("/proxy-image")
+async def proxy_image(url: str):
+    """Proxy external images to avoid CORS issues for canvas drawing"""
+    if not url:
+        raise HTTPException(status_code=400, detail="URL parameter required")
+    
+    # Validate URL is from allowed domains
+    allowed_domains = [
+        "static.prod-images.emergentagent.com",
+        "customer-assets.emergentagent.com",
+        "images.unsplash.com",
+    ]
+    
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    if parsed.netloc not in allowed_domains:
+        raise HTTPException(status_code=400, detail="Domain not allowed")
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, timeout=10.0)
+            response.raise_for_status()
+            
+            content_type = response.headers.get("content-type", "image/png")
+            
+            return StreamingResponse(
+                iter([response.content]),
+                media_type=content_type,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Cache-Control": "public, max-age=86400",
+                }
+            )
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=f"Failed to fetch image: {str(e)}")
+
+
+# ========================
 # Brand Territories Routes
 # ========================
 

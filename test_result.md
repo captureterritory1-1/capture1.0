@@ -297,6 +297,91 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Re-Center Button"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify floating button in TOP-RIGHT corner of map with Navigation/GPS arrow icon that re-centers map on user location when clicked"
+
+  - task: "Fly-To Brand Feature"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify clicking MuscleBlaze logo/marker smoothly flies/zooms to that territory with toast notification 'Flying to [zone name]'"
+
+  - task: "White Label - Badge Removal"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/public/index.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify 'Made with Emergent' badge is NOT visible anywhere on the page, especially bottom-right corner"
+
+  - task: "Distance Display (KM)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/TrackingSheet.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify distance shows as '0.00' km format with 'km' unit displayed below the distance number"
+
+  - task: "Page Title"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/public/index.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify browser tab/page title says 'CAPTURE - Territory Conquest' (NOT 'Emergent | Fullstack App')"
+
+  - task: "Multi-User Territories"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify map loads territories from all users (backend sync) and brand territories (MuscleBlaze zones) are visible"
+
+test_plan:
+  current_focus:
+    - "Re-Center Button"
+    - "Fly-To Brand Feature"
+    - "White Label - Badge Removal"
+    - "Distance Display (KM)"
+    - "Page Title"
+    - "Multi-User Territories"
+  stuck_tasks:
+    - "GPS Blue Dot Immediately Visible"
+  test_all: false
+  test_priority: "high_first"
+
 agent_communication:
   - agent: "testing"
     message: "Starting comprehensive testing of CAPTURE territory conquest web app. Will test all major flows including login, setup wizard, map functionality, leaderboard, friends, profile, and navigation. Using test credentials as specified in review request."
@@ -306,3 +391,5 @@ agent_communication:
     message: "🔄 STARTING REFINEMENT TESTING: Testing specific CAPTURE app refinements - Navigation Always Visible, GPS Blue Dot Immediately Visible, Capture Flow Logic, MuscleBlaze Brand Territories, and Mobile Viewport. Will verify all fixes have been properly applied."
   - agent: "testing"
     message: "✅ REFINEMENT TESTING COMPLETED: 4/5 refinements working correctly. ✅ Navigation Always Visible (all pages), ✅ Capture Flow Logic (correct text), ✅ MuscleBlaze Brand Territories (3 markers found), ✅ Mobile Viewport (no scrolling issues). ❌ GPS Blue Dot not immediately visible - needs investigation. Minor: Emergent badge interferes with some clicks but doesn't break core functionality."
+  - agent: "testing"
+    message: "🔄 STARTING NEW REFINEMENT TESTING: Testing 6 new CAPTURE app refinements - Re-Center Button (TOP-RIGHT corner), Fly-To Brand Feature (MuscleBlaze click to fly), White Label Badge Removal, Distance Display (KM format), Page Title verification, and Multi-User Territories. Will test on mobile viewport (390x844) as requested."

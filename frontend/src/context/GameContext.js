@@ -441,7 +441,7 @@ export const GameProvider = ({ children }) => {
       setTrackingStartTime(null);
       return { success: false, isRun: true, message: 'Run Saved! Could not create territory.', run: runData };
     }
-  }, [currentPath, userTerritories.length, userPreferences.territoryColor, totalDistance, elapsedTime, calculateDistance]);
+  }, [currentPath, userTerritories.length, userPreferences.territoryColor, totalDistance, elapsedTime, calculateDistance, saveTerritory]);
 
   // Format time
   const formatTime = useCallback((seconds) => {

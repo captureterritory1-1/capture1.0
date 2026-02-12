@@ -90,6 +90,9 @@ export const GameProvider = ({ children }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [totalDistance, setTotalDistance] = useState(0);
   
+  // Saved runs (non-territory trails)
+  const [savedRuns, setSavedRuns] = useState([]);
+  
   // Map center
   const [mapCenter, setMapCenter] = useState(BANGALORE_CENTER);
   
@@ -103,14 +106,19 @@ export const GameProvider = ({ children }) => {
     };
   });
   
-  // Geolocation watch ID
-  const [watchId, setWatchId] = useState(null);
+  // Geolocation watch IDs - separate for passive tracking and active capture
+  const [passiveWatchId, setPassiveWatchId] = useState(null);
+  const [captureWatchId, setCaptureWatchId] = useState(null);
 
   // Load user territories from localStorage
   useEffect(() => {
     const stored = localStorage.getItem('capture_territories');
     if (stored) {
       setUserTerritories(JSON.parse(stored));
+    }
+    const storedRuns = localStorage.getItem('capture_runs');
+    if (storedRuns) {
+      setSavedRuns(JSON.parse(storedRuns));
     }
   }, []);
 
@@ -121,10 +129,56 @@ export const GameProvider = ({ children }) => {
     }
   }, [userTerritories]);
 
+  // Save runs to localStorage
+  useEffect(() => {
+    if (savedRuns.length > 0) {
+      localStorage.setItem('capture_runs', JSON.stringify(savedRuns));
+    }
+  }, [savedRuns]);
+
   // Save preferences to localStorage
   useEffect(() => {
     localStorage.setItem('capture_preferences', JSON.stringify(userPreferences));
   }, [userPreferences]);
+
+  // IMMEDIATE GPS TRACKING - Start watching position on mount (Blue Dot always visible)
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      console.error('Geolocation is not supported');
+      return;
+    }
+
+    const id = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const newPoint = [latitude, longitude];
+        setCurrentPosition(newPoint);
+        // Center map on first position only
+        setMapCenter((prev) => {
+          if (prev[0] === BANGALORE_CENTER[0] && prev[1] === BANGALORE_CENTER[1]) {
+            return newPoint;
+          }
+          return prev;
+        });
+      },
+      (error) => {
+        console.error('Passive geolocation error:', error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5000,
+      }
+    );
+
+    setPassiveWatchId(id);
+
+    return () => {
+      if (id) {
+        navigator.geolocation.clearWatch(id);
+      }
+    };
+  }, []);
 
   // Timer for tracking
   useEffect(() => {
@@ -144,27 +198,31 @@ export const GameProvider = ({ children }) => {
     return turf.distance(from, to, { units: 'kilometers' });
   }, []);
 
-  // Start tracking
+  // Start tracking/capture - only records path, Blue Dot already visible
   const startTracking = useCallback(() => {
     if (!navigator.geolocation) {
       console.error('Geolocation is not supported');
       return false;
     }
 
+    // Initialize capture state
     setIsTracking(true);
-    setCurrentPath([]);
+    setCurrentPath(currentPosition ? [currentPosition] : []);
     setTrackingStartTime(Date.now());
     setElapsedTime(0);
     setTotalDistance(0);
 
+    // Start high-accuracy tracking for capture (separate from passive Blue Dot)
     const id = navigator.geolocation.watchPosition(
       (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
+        const { latitude, longitude } = position.coords;
         const newPoint = [latitude, longitude];
         
+        // Update current position (Blue Dot)
         setCurrentPosition(newPoint);
         setMapCenter(newPoint);
         
+        // Record path for capture - NO auto-detection, just collect points
         setCurrentPath((prev) => {
           if (prev.length > 0) {
             const lastPoint = prev[prev.length - 1];
@@ -181,7 +239,7 @@ export const GameProvider = ({ children }) => {
         });
       },
       (error) => {
-        console.error('Geolocation error:', error);
+        console.error('Capture geolocation error:', error);
       },
       {
         enableHighAccuracy: true,
@@ -190,23 +248,46 @@ export const GameProvider = ({ children }) => {
       }
     );
 
-    setWatchId(id);
+    setCaptureWatchId(id);
     return true;
-  }, [calculateDistance]);
+  }, [calculateDistance, currentPosition]);
 
-  // Stop tracking
+  // Stop tracking - just stops, doesn't analyze
   const stopTracking = useCallback(() => {
-    if (watchId) {
-      navigator.geolocation.clearWatch(watchId);
-      setWatchId(null);
+    if (captureWatchId) {
+      navigator.geolocation.clearWatch(captureWatchId);
+      setCaptureWatchId(null);
     }
     setIsTracking(false);
-  }, [watchId]);
+  }, [captureWatchId]);
 
-  // Analyze and create territory from path
+  // Analyze and create territory from path - ONLY called on manual "End Capture"
   const analyzeAndCreateTerritory = useCallback(() => {
+    // Save the run data regardless of loop status
+    const runData = {
+      id: `run_${Date.now()}`,
+      path: currentPath.map(([lat, lng]) => [lng, lat]),
+      distance: totalDistance,
+      duration: elapsedTime,
+      createdAt: new Date().toISOString(),
+    };
+
     if (currentPath.length < 4) {
-      return { success: false, message: 'Need at least 4 points to create a territory' };
+      // Save as run (not territory)
+      setSavedRuns((prev) => [...prev, runData]);
+      
+      // Reset tracking state
+      setCurrentPath([]);
+      setTotalDistance(0);
+      setElapsedTime(0);
+      setTrackingStartTime(null);
+      
+      return { 
+        success: false, 
+        isRun: true,
+        message: 'Run Saved! Need more points for territory.', 
+        run: runData 
+      };
     }
 
     // Close the loop by connecting last point to first
@@ -219,20 +300,46 @@ export const GameProvider = ({ children }) => {
       // Create polygon
       const polygon = turf.polygon([coordinates]);
       
-      // Check if valid
+      // Check if valid polygon
       if (!polygon) {
-        return { success: false, message: 'Trail ended without closing a loop' };
+        // Save as run instead
+        setSavedRuns((prev) => [...prev, runData]);
+        setCurrentPath([]);
+        setTotalDistance(0);
+        setElapsedTime(0);
+        setTrackingStartTime(null);
+        return { success: false, isRun: true, message: 'Run Saved! Trail did not form a closed loop.', run: runData };
       }
 
       // Calculate area
       const area = turf.area(polygon) / 1000000; // Convert to sq km
       
+      // Check if start and end are close enough (within 50 meters)
+      const startPoint = currentPath[0];
+      const endPoint = currentPath[currentPath.length - 1];
+      const loopDistance = calculateDistance(startPoint, endPoint);
+      
+      // If loop is not closed (start/end > 50m apart), save as run
+      if (loopDistance > 0.05) {
+        setSavedRuns((prev) => [...prev, runData]);
+        setCurrentPath([]);
+        setTotalDistance(0);
+        setElapsedTime(0);
+        setTrackingStartTime(null);
+        return { success: false, isRun: true, message: 'Run Saved! Return to start point to claim territory.', run: runData };
+      }
+      
       // Minimum area check (100 sq meters = 0.0001 sq km)
       if (area < 0.0001) {
-        return { success: false, message: 'Territory too small. Run a bigger loop!' };
+        setSavedRuns((prev) => [...prev, runData]);
+        setCurrentPath([]);
+        setTotalDistance(0);
+        setElapsedTime(0);
+        setTrackingStartTime(null);
+        return { success: false, isRun: true, message: 'Run Saved! Territory too small.', run: runData };
       }
 
-      // Create territory object
+      // SUCCESS - Create territory object
       const newTerritory = {
         id: `territory_${Date.now()}`,
         name: `Territory ${userTerritories.length + 1}`,
@@ -260,9 +367,15 @@ export const GameProvider = ({ children }) => {
       };
     } catch (error) {
       console.error('Error creating territory:', error);
-      return { success: false, message: 'Trail ended without closing a loop' };
+      // Save as run on error
+      setSavedRuns((prev) => [...prev, runData]);
+      setCurrentPath([]);
+      setTotalDistance(0);
+      setElapsedTime(0);
+      setTrackingStartTime(null);
+      return { success: false, isRun: true, message: 'Run Saved! Could not create territory.', run: runData };
     }
-  }, [currentPath, userTerritories.length, userPreferences.territoryColor, totalDistance, elapsedTime]);
+  }, [currentPath, userTerritories.length, userPreferences.territoryColor, totalDistance, elapsedTime, calculateDistance]);
 
   // Format time
   const formatTime = useCallback((seconds) => {
@@ -301,6 +414,7 @@ export const GameProvider = ({ children }) => {
   const value = {
     // State
     userTerritories,
+    savedRuns,
     brandTerritories: BRAND_TERRITORIES,
     isTracking,
     currentPath,
@@ -317,6 +431,7 @@ export const GameProvider = ({ children }) => {
     analyzeAndCreateTerritory,
     updatePreferences,
     setMapCenter,
+    setCurrentPosition,
     
     // Utilities
     formatTime,

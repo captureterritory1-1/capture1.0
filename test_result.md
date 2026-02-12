@@ -387,6 +387,66 @@ test_plan:
         agent: "testing"
         comment: "✅ MULTI-USER TERRITORIES WORKING: Found 6 territory elements and 3 MuscleBlaze brand territories with golden borders and logos visible on map. Backend sync working correctly."
 
+  - task: "Dark/Light Mode Toggle"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/ProfilePage.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify Appearance menu item with switch toggle in Profile page, dark mode activation with rich black background (#09090b), toast notification, and map tile changes to dark style"
+      - working: false
+        agent: "testing"
+        comment: "❌ DARK/LIGHT MODE TOGGLE BLOCKED: Cannot test due to authentication issue preventing access to Profile page. Mock authentication not working in browser automation environment. Need to resolve login flow before testing theme toggle functionality."
+
+  - task: "Start Capture Button Styling"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/TrackingSheet.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify Start Capture button has amber/orange gradient, changes to Stop Capture with red background, and LIVE indicator appears"
+      - working: false
+        agent: "testing"
+        comment: "❌ START CAPTURE BUTTON BLOCKED: Cannot test due to authentication issue preventing access to Map page with tracking functionality. Need to resolve login flow before testing capture button styling and state changes."
+
+  - task: "MuscleBlaze Scratch Card"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/ScratchCard.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify scratch card modal appears when clicking MuscleBlaze markers, has Territory Captured header, blue scratch area with Scratch to Reveal text, reveals ₹500 OFF prize and coupon code, and shows confetti animation"
+      - working: false
+        agent: "testing"
+        comment: "❌ MUSCLEBLAZE SCRATCH CARD BLOCKED: Cannot test due to authentication issue preventing access to Map page with MuscleBlaze territories. Need to resolve login flow before testing scratch card functionality."
+
+  - task: "UI Polish (Oswald Font & Glassmorphism)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/index.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify Oswald font usage for headings/metrics, glassmorphism effects on bottom navigation and floating tracking sheet, and NO Made with Emergent badge"
+      - working: true
+        agent: "testing"
+        comment: "✅ UI POLISH PARTIALLY VERIFIED: Oswald font confirmed working for headings (font-family: Oswald, sans-serif detected). Cannot fully test glassmorphism effects due to authentication blocking access to main app pages. No Made with Emergent badge found in login page. Partial success - font implementation working correctly."
+
 test_plan:
   current_focus: []
   stuck_tasks:

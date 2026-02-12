@@ -388,15 +388,10 @@ test_plan:
         comment: "✅ MULTI-USER TERRITORIES WORKING: Found 6 territory elements and 3 MuscleBlaze brand territories with golden borders and logos visible on map. Backend sync working correctly."
 
 test_plan:
-  current_focus:
-    - "Re-Center Button"
-    - "Fly-To Brand Feature"
-    - "White Label - Badge Removal"
-    - "Distance Display (KM)"
-    - "Page Title"
-    - "Multi-User Territories"
+  current_focus: []
   stuck_tasks:
     - "GPS Blue Dot Immediately Visible"
+    - "Fly-To Brand Feature"
   test_all: false
   test_priority: "high_first"
 
@@ -411,3 +406,5 @@ agent_communication:
     message: "✅ REFINEMENT TESTING COMPLETED: 4/5 refinements working correctly. ✅ Navigation Always Visible (all pages), ✅ Capture Flow Logic (correct text), ✅ MuscleBlaze Brand Territories (3 markers found), ✅ Mobile Viewport (no scrolling issues). ❌ GPS Blue Dot not immediately visible - needs investigation. Minor: Emergent badge interferes with some clicks but doesn't break core functionality."
   - agent: "testing"
     message: "🔄 STARTING NEW REFINEMENT TESTING: Testing 6 new CAPTURE app refinements - Re-Center Button (TOP-RIGHT corner), Fly-To Brand Feature (MuscleBlaze click to fly), White Label Badge Removal, Distance Display (KM format), Page Title verification, and Multi-User Territories. Will test on mobile viewport (390x844) as requested."
+  - agent: "testing"
+    message: "✅ NEW REFINEMENT TESTING COMPLETED: 5/6 refinements working correctly. ✅ Re-Center Button (top-right, Navigation icon), ✅ White Label Badge Removal (no 'Made with Emergent'), ✅ Distance Display (0.00 km format), ✅ Page Title ('CAPTURE - Territory Conquest'), ✅ Multi-User Territories (6 elements + 3 MuscleBlaze zones). ❌ Fly-To Brand Feature missing toast notification. Login authentication resolved using keyboard input method."

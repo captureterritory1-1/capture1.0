@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Google Fonts - Space Grotesk for headings, Inter for body */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+/* Import Google Fonts - Inter for body, Oswald for headings/metrics */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap');
 
 body {
     margin: 0;
@@ -20,15 +20,15 @@ code {
     :root {
         /* CAPTURE App Design System - Clean White UI with Amber Accents */
         
-        /* Core Colors */
+        /* Core Colors - Light Mode */
         --background: 0 0% 100%;
-        --foreground: 0 0% 0%;
+        --foreground: 0 0% 4%;
         
         /* Cards & Surfaces */
         --card: 0 0% 100%;
-        --card-foreground: 0 0% 0%;
+        --card-foreground: 0 0% 4%;
         --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 0%;
+        --popover-foreground: 0 0% 4%;
         
         /* Primary - Black for main actions */
         --primary: 0 0% 9%;
@@ -103,26 +103,35 @@ code {
         --chart-5: 262 83% 58%;
     }
     
+    /* Dark Mode - Rich Black Theme */
     .dark {
-        --background: 0 0% 5%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 8%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 8%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 0 0% 9%;
-        --secondary: 0 0% 14%;
-        --secondary-foreground: 0 0% 80%;
-        --muted: 0 0% 14%;
-        --muted-foreground: 0 0% 64%;
+        --background: 0 0% 4%;
+        --foreground: 0 0% 96%;
+        --card: 0 0% 7%;
+        --card-foreground: 0 0% 96%;
+        --popover: 0 0% 7%;
+        --popover-foreground: 0 0% 96%;
+        --primary: 0 0% 96%;
+        --primary-foreground: 0 0% 4%;
+        --secondary: 0 0% 12%;
+        --secondary-foreground: 0 0% 75%;
+        --muted: 0 0% 12%;
+        --muted-foreground: 0 0% 60%;
         --accent: 38 92% 50%;
         --accent-foreground: 0 0% 0%;
-        --destructive: 0 62% 30%;
+        --destructive: 0 62% 50%;
         --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 20%;
-        --input: 0 0% 20%;
+        --border: 0 0% 18%;
+        --input: 0 0% 18%;
         --ring: 38 92% 50%;
+        
+        /* Dark mode shadows */
+        --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+        --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
+        --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
+        --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.3), 0 8px 10px -6px hsl(0 0% 0% / 0.2);
+        --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
+        --shadow-elevated: 0 12px 40px -4px hsl(0 0% 0% / 0.4);
     }
 }
 

@@ -670,6 +670,8 @@ export const GameProvider = ({ children }) => {
     setMapCenter,
     setCurrentPosition,
     fetchAllTerritories,
+    checkTerritoryOverlap,
+    claimTerritory,
     
     // Utilities
     formatTime,

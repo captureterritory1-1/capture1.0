@@ -101,3 +101,112 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test the CAPTURE territory conquest web app - a mobile-first PWA for territory capturing via running/walking. Test login, setup wizard, map page, ranks/leaderboard, friends page, profile page, and navigation flows."
+
+frontend:
+  - task: "Login Page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/LoginPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial testing required - need to verify CAPTURE logo, tagline, Sign In/Sign Up tabs, email/password inputs, mock login functionality, and toast notifications"
+
+  - task: "Setup Wizard"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/SetupPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial testing required - need to verify 3-step wizard: display name input, preferences (km/miles, run/walk toggles), color picker with 8 colors, Skip button, and Start Capturing button"
+
+  - task: "Map Page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial testing required - need to verify map loads with CartoDB Positron tiles, floating Ready to Run sheet, distance/duration metrics, amber Start Run button, and bottom navigation"
+
+  - task: "Ranks/Leaderboard Page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/RanksPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial testing required - need to verify leaderboard header with trophy icon, user stats card, mock leaderboard data with rankings and crown/medal icons, player cards with stats"
+
+  - task: "Friends Page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/FriendsPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial testing required - need to verify search input, Friends/Requests tabs, friend list with online/offline indicators, friend request section with Accept/Decline buttons"
+
+  - task: "Profile Page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/ProfilePage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial testing required - need to verify user profile header with avatar and email, Your Stats grid, Settings menu items, and Log Out button"
+
+  - task: "Bottom Navigation"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/BottomNavigation.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Initial testing required - need to verify navigation between all pages, active state styling, and center FAB button styling (amber colored)"
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+
+test_plan:
+  current_focus:
+    - "Login Page"
+    - "Setup Wizard"
+    - "Map Page"
+    - "Ranks/Leaderboard Page"
+    - "Friends Page"
+    - "Profile Page"
+    - "Bottom Navigation"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "sequential"
+
+agent_communication:
+  - agent: "testing"
+    message: "Starting comprehensive testing of CAPTURE territory conquest web app. Will test all major flows including login, setup wizard, map functionality, leaderboard, friends, profile, and navigation. Using test credentials as specified in review request."

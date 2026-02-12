@@ -121,44 +121,18 @@ const ScratchCard = ({ isOpen, onClose, territory }) => {
       
       ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
       
-      // Add semi-transparent overlay for better scratch visibility
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-      ctx.fillRect(0, 0, rect.width, rect.height);
-      
-      // Add "Scratch Me!" hint text with better visibility
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.font = 'bold 18px Oswald, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      // Text shadow effect for readability
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-      ctx.shadowBlur = 6;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      
-      ctx.fillText('✨ SCRATCH ME! ✨', rect.width / 2, rect.height / 2);
-      
-      // Reset shadow
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-      
       console.log('Canvas drawn with logo successfully');
     } else {
-      // Fallback: Draw brand color with text if no logo
+      // Fallback: Draw brand color with brand name only (clean look)
       console.log('Using fallback - no logo available');
       ctx.fillStyle = brandColor;
       ctx.fillRect(0, 0, rect.width, rect.height);
       
       ctx.fillStyle = 'white';
-      ctx.font = 'bold 24px Oswald, sans-serif';
+      ctx.font = 'bold 28px Oswald, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(brandName.toUpperCase(), rect.width / 2, rect.height / 2 - 15);
-      ctx.font = '14px Inter, sans-serif';
-      ctx.fillText('✨ Scratch to Reveal! ✨', rect.width / 2, rect.height / 2 + 20);
+      ctx.fillText(brandName.toUpperCase(), rect.width / 2, rect.height / 2);
     }
 
     // Reset state

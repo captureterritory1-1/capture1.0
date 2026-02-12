@@ -14,11 +14,11 @@ export const useGame = () => {
 // Bangalore center coordinates - Indiranagar area (where brand territories are)
 const BANGALORE_CENTER = [12.9750, 77.6380];
 
-// Brand logos
+// Brand logos - CORS-friendly URLs
 const BRAND_LOGOS = {
-  MuscleBlaze: 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/puq75076_unnamed.png',
-  SuperYou: 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/t35afcm6_channels4_profile.jpg',
-  TheWholeTruth: 'https://customer-assets.emergentagent.com/job_instantapp-2/artifacts/s450l1io_images-4.png',
+  MuscleBlaze: 'https://static.prod-images.emergentagent.com/jobs/62a390cf-e991-4f9e-9698-d97c5fc17e8c/images/a1e286660452ee772461319f47f6c2d26505153492ccf260839fc12854fc75b5.png',
+  SuperYou: 'https://static.prod-images.emergentagent.com/jobs/62a390cf-e991-4f9e-9698-d97c5fc17e8c/images/353c69b660c5a9d87ed77019a52a130d9b3ad1dc80a8f026a2c2f4189573e2fb.png',
+  TheWholeTruth: 'https://static.prod-images.emergentagent.com/jobs/62a390cf-e991-4f9e-9698-d97c5fc17e8c/images/a61d5ce669bb099866a4b8fd9ff58ef1c808ddf2f9a129d41b39ee4c710f3389.png',
 };
 
 // Brand prizes/coupons

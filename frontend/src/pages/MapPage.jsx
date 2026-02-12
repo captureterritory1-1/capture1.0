@@ -178,7 +178,8 @@ const RecenterButton = ({ userPosition, onClick }) => {
 
 const MapPage = () => {
   const { 
-    userTerritories, 
+    userTerritories,
+    allTerritories, // All territories from all users
     brandTerritories,
     isTracking,
     currentPath,
@@ -200,6 +201,10 @@ const MapPage = () => {
   const [initialCentered, setInitialCentered] = useState(false);
   const [flyToTarget, setFlyToTarget] = useState(null);
   const holdTimerRef = useRef(null);
+
+  // Combine local and server territories for display
+  // Prefer server data when available, fallback to local
+  const displayTerritories = allTerritories.length > 0 ? allTerritories : userTerritories;
 
   // Center map on user's position once when they first load
   useEffect(() => {

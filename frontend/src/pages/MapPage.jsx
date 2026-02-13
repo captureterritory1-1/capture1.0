@@ -225,6 +225,27 @@ const RecenterButton = ({ userPosition, onClick }) => {
   );
 };
 
+// Home button - fly back to Bannerghatta (territory battleground)
+const HomeButton = ({ onClick }) => {
+  const map = useMap();
+  
+  const handleGoHome = (e) => {
+    e.stopPropagation();
+    map.flyTo(BANNERGHATTA_CENTER, 16, { duration: 1.5 });
+    if (onClick) onClick();
+  };
+  
+  return (
+    <button
+      onClick={handleGoHome}
+      className="absolute top-16 right-4 z-[500] w-11 h-11 bg-amber-500/90 backdrop-blur-xl rounded-full shadow-lg flex items-center justify-center hover:bg-amber-600 transition-colors active:scale-95 border border-amber-400/50"
+      title="Go to Bannerghatta (Territory Zone)"
+    >
+      <Home className="w-5 h-5 text-white" />
+    </button>
+  );
+};
+
 // Map layer toggle button
 const LayerToggle = ({ currentView, onToggle }) => {
   return (

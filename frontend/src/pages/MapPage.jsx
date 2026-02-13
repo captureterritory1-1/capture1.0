@@ -644,12 +644,13 @@ const MapPage = () => {
         
         {/* Attribution overlay */}
         <div className="absolute bottom-24 left-2 text-xs text-muted-foreground/60 z-[400]">
-          © OpenStreetMap
+          © Esri, OpenStreetMap
         </div>
         
         {/* Tracking Sheet - floats above bottom nav */}
         <TrackingSheet
           isTracking={isTracking}
+          isPaused={isPaused}
           elapsedTime={elapsedTime}
           totalDistance={totalDistance}
           formatTime={formatTime}
@@ -657,11 +658,14 @@ const MapPage = () => {
           unit={userPreferences.unit}
           onStartRun={handleStartRun}
           onEndRun={handleEndRun}
+          onPauseRun={handlePauseRun}
+          onResumeRun={handleResumeRun}
           showConfirmEnd={showConfirmEnd}
           holdProgress={holdProgress}
           onHoldStart={handleHoldStart}
           onHoldEnd={handleHoldEnd}
           onCancelEnd={handleCancelEnd}
+          gpsAccuracy={gpsAccuracy}
         />
       </div>
 
@@ -670,6 +674,18 @@ const MapPage = () => {
         isOpen={showScratchCard}
         onClose={handleCloseScratchCard}
         territory={selectedBrand}
+      />
+
+      {/* Claim Territory Modal */}
+      <ClaimTerritoryModal
+        isOpen={showClaimModal}
+        onClose={() => {
+          setShowClaimModal(false);
+          setTerritoryToClaim(null);
+        }}
+        onClaim={handleClaimTerritory}
+        territory={territoryToClaim}
+        currentUserColor={userPreferences.territoryColor.hex}
       />
     </div>
   );

@@ -11,8 +11,16 @@ export const useGame = () => {
   return context;
 };
 
-// Bangalore center coordinates - Indiranagar area (where brand territories are)
-const BANGALORE_CENTER = [12.9750, 77.6380];
+// BANNERGHATTA ROAD, BANGALORE - Hard locked location
+const BANGALORE_CENTER = [12.8988, 77.6006];
+
+// Map bounds for Bannerghatta Road area (prevents panning outside)
+export const MAP_BOUNDS = {
+  north: 12.9200,
+  south: 12.8700,
+  east: 77.6300,
+  west: 77.5700,
+};
 
 // API base URL for proxy
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
@@ -37,17 +45,17 @@ const BRAND_PRIZES = {
   TheWholeTruth: { discount: 'FREE BAR', code: 'TRUTHBAR', description: 'Get 1 protein bar free' },
 };
 
-// Hardcoded brand territories with REALISTIC road-snapped coordinates in Bangalore
+// BANNERGHATTA ROAD BRAND TERRITORIES - Real-world locations
 const BRAND_TERRITORIES = [
-  // === MuscleBlaze Territories (3) ===
+  // === MuscleBlaze Territories (3) - Bannerghatta Road ===
   {
     id: 'brand_muscleblaze_1',
-    name: 'MuscleBlaze - Indiranagar 12th Main',
+    name: 'MuscleBlaze - Decathlon Bannerghatta',
     brand: 'MuscleBlaze',
     brandKey: 'MuscleBlaze',
     color: '#FF6B00', // Orange
-    logoUrl: BRAND_LOGOS_DIRECT.MuscleBlaze, // Direct URL for map markers
-    logoUrlProxied: getProxiedLogoUrl('MuscleBlaze'), // Proxied URL for canvas
+    logoUrl: BRAND_LOGOS_DIRECT.MuscleBlaze,
+    logoUrlProxied: getProxiedLogoUrl('MuscleBlaze'),
     prize: BRAND_PRIZES.MuscleBlaze,
     // Rectangular block along Indiranagar 12th Main Road
     coordinates: [

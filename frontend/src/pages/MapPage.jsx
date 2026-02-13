@@ -511,26 +511,27 @@ const MapPage = () => {
           maxBounds={MAP_CONFIG.bounds}
           maxBoundsViscosity={1.0}
           attributionControl={false}
+          doubleClickZoom={false}
         >
-          {/* Dynamic Map Tiles based on theme */}
-          <TileLayer
-            url={isDarkMode ? MAP_TILES.dark : MAP_TILES.light}
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          />
+          {/* Dynamic Satellite/Hybrid Tiles */}
+          {getTileLayers()}
           
-          {/* Map Controller - centers on user + handles flyTo */}
+          {/* Map Controller - centers on user + handles flyTo + bounds */}
           <MapController 
-            center={currentPosition || mapCenter} 
+            center={currentPosition || MAP_CONFIG.center} 
             isTracking={isTracking} 
             shouldCenter={!initialCentered && currentPosition}
             flyToTarget={flyToTarget}
             onFlyComplete={handleFlyComplete}
           />
           
+          {/* Layer Toggle Button */}
+          <LayerToggle currentView={mapView} onToggle={handleToggleMapView} />
+          
           {/* Re-center Button (inside MapContainer for map access) */}
           <RecenterButton userPosition={currentPosition} />
           
-          {/* Brand Territories with Logos - Clickable */}
+          {/* Brand Territories with Logos - Single click = flyTo, Double click = scratch card */}
           {brandTerritories.map((territory) => (
             <React.Fragment key={territory.id}>
               <Polygon
@@ -538,12 +539,13 @@ const MapPage = () => {
                 pathOptions={{
                   color: territory.color,
                   fillColor: territory.color,
-                  fillOpacity: 0.25,
+                  fillOpacity: 0.3,
                   weight: 3,
                   dashArray: '8, 8',
                 }}
                 eventHandlers={{
-                  click: () => handleBrandClick(territory),
+                  click: () => handleBrandSingleClick(territory),
+                  dblclick: () => handleBrandDoubleClick(territory),
                 }}
               >
                 <Popup>

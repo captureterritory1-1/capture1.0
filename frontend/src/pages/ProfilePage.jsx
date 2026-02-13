@@ -49,45 +49,6 @@ const ProfilePage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const fileInputRef = useRef(null);
-
-  // Load preferences from backend on mount
-  useEffect(() => {
-    if (user?.id) {
-      loadPreferencesFromBackend(user.id);
-    }
-  }, [user?.id, loadPreferencesFromBackend]);
-
-  // Sync theme from preferences when loaded
-  useEffect(() => {
-    if (userPreferences.theme) {
-      const shouldBeDark = userPreferences.theme === 'dark';
-      if (isDarkMode !== shouldBeDark) {
-        setTheme(shouldBeDark);
-      }
-    }
-  }, [userPreferences.theme, isDarkMode, setTheme]);
-
-const ProfilePage = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const { 
-    getTotalStats, 
-    userPreferences, 
-    userTerritories, 
-    territoryColors, 
-    updatePreferences,
-    loadPreferencesFromBackend 
-  } = useGame();
-  const { isDarkMode, toggleTheme, setTheme } = useTheme();
-  const stats = getTotalStats();
-  
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [showPreferences, setShowPreferences] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef(null);
 
   // Load preferences from backend on mount
@@ -139,11 +100,9 @@ const ProfilePage = () => {
     navigate('/login');
   };
 
-  const handleThemeToggle = async () => {
+  const handleThemeToggle = () => {
     const newTheme = isDarkMode ? 'light' : 'dark';
     toggleTheme();
-    
-    // Save to backend
     updatePreferences({ theme: newTheme }, user?.id);
     toast.success(isDarkMode ? 'Light mode activated' : 'Dark mode activated');
   };
@@ -241,7 +200,7 @@ const ProfilePage = () => {
     {
       icon: Bell,
       label: 'Notifications',
-      value: userPreferences.notificationsEnabled ? 'On' : 'Off',
+      value: userPreferences.notificationsEnabled !== false ? 'On' : 'Off',
       hasToggle: true,
       onToggle: handleNotificationsToggle,
       isToggled: userPreferences.notificationsEnabled !== false,
@@ -249,7 +208,7 @@ const ProfilePage = () => {
     {
       icon: Shield,
       label: 'Privacy',
-      value: userPreferences.privacy === 'public' ? 'Public Profile' : 'Private Profile',
+      value: userPreferences.privacy === 'private' ? 'Private Profile' : 'Public Profile',
       hasToggle: true,
       onToggle: handlePrivacyToggle,
       isToggled: userPreferences.privacy === 'private',
@@ -282,7 +241,7 @@ const ProfilePage = () => {
               onClick={handleProfilePictureClick}
               disabled={isUploading}
               className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center text-white text-2xl font-bold shadow-lg relative group transition-transform hover:scale-105 active:scale-95"
-              style={{ backgroundColor: profilePicture ? 'transparent' : userPreferences.territoryColor.hex }}
+              style={{ backgroundColor: profilePicture ? 'transparent' : (userPreferences.territoryColor?.hex || '#EF4444') }}
             >
               {isUploading ? (
                 <Loader2 className="w-8 h-8 animate-spin text-white" />
@@ -408,6 +367,7 @@ const ProfilePage = () => {
                 <button 
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors"
                   onClick={item.hasToggle ? item.onToggle : item.onClick}
+                  data-testid={`settings-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center theme-transition">
                     {item.color ? (
@@ -446,6 +406,7 @@ const ProfilePage = () => {
           variant="ghost"
           onClick={handleLogout}
           className="w-full mt-4 h-12 text-destructive hover:text-destructive hover:bg-destructive/10"
+          data-testid="logout-button"
         >
           <LogOut className="w-5 h-5 mr-2" />
           Log Out

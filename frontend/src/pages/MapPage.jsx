@@ -523,17 +523,18 @@ const MapPage = () => {
         <MapContainer
           center={MAP_CONFIG.center}
           zoom={MAP_CONFIG.defaultZoom}
+          minZoom={MAP_CONFIG.minZoom}
+          maxZoom={MAP_CONFIG.maxZoom}
           className="h-full w-full"
           zoomControl={false}
-          maxBounds={MAP_CONFIG.bounds}
-          maxBoundsViscosity={1.0}
           attributionControl={false}
           doubleClickZoom={false}
+          worldCopyJump={true}
         >
           {/* Dynamic Satellite/Hybrid Tiles */}
           {getTileLayers()}
           
-          {/* Map Controller - centers on user + handles flyTo + bounds */}
+          {/* Map Controller - GLOBAL navigation with Bannerghatta as start */}
           <MapController 
             center={currentPosition || MAP_CONFIG.center} 
             isTracking={isTracking} 
@@ -547,6 +548,9 @@ const MapPage = () => {
           
           {/* Re-center Button (inside MapContainer for map access) */}
           <RecenterButton userPosition={currentPosition} />
+          
+          {/* Home Button - Go to Bannerghatta territory zone */}
+          <HomeButton onClick={() => toast.info('Flying to Bannerghatta Territory Zone')} />
           
           {/* Brand Territories with Logos - Single click = flyTo, Double click = scratch card */}
           {brandTerritories.map((territory) => (

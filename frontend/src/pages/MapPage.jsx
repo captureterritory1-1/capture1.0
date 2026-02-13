@@ -171,9 +171,19 @@ const createBrandLogoIcon = (territory) => {
   });
 };
 
-// Map controller component - follows user when tracking + handles flyTo
+// Map controller component - follows user when tracking + handles flyTo + bounds
 const MapController = ({ center, isTracking, shouldCenter, flyToTarget, onFlyComplete }) => {
   const map = useMap();
+  
+  // Set map bounds to Bannerghatta Road area
+  useEffect(() => {
+    map.setMaxBounds(MAP_CONFIG.bounds);
+    map.setMinZoom(MAP_CONFIG.minZoom);
+    map.setMaxZoom(MAP_CONFIG.maxZoom);
+    
+    // Disable double-click zoom (we use it for scratch cards)
+    map.doubleClickZoom.disable();
+  }, [map]);
   
   useEffect(() => {
     if (center && (isTracking || shouldCenter)) {
@@ -181,10 +191,10 @@ const MapController = ({ center, isTracking, shouldCenter, flyToTarget, onFlyCom
     }
   }, [center, isTracking, shouldCenter, map]);
   
-  // Handle fly-to requests
+  // Handle fly-to requests (single click on territory)
   useEffect(() => {
     if (flyToTarget) {
-      map.flyTo(flyToTarget.position, flyToTarget.zoom || 16, {
+      map.flyTo(flyToTarget.position, flyToTarget.zoom || 18, {
         duration: 1.5
       });
       if (onFlyComplete) {
@@ -219,6 +229,19 @@ const RecenterButton = ({ userPosition, onClick }) => {
   );
 };
 
+// Map layer toggle button
+const LayerToggle = ({ currentView, onToggle }) => {
+  return (
+    <button
+      onClick={onToggle}
+      className="absolute top-4 right-16 z-[500] w-11 h-11 bg-card/90 backdrop-blur-xl rounded-full shadow-lg flex items-center justify-center hover:bg-secondary transition-colors active:scale-95 border border-border/50"
+      title="Toggle map view"
+    >
+      <Layers className="w-5 h-5 text-foreground" />
+    </button>
+  );
+};
+
 const MapPage = () => {
   const { 
     userTerritories,
@@ -236,6 +259,8 @@ const MapPage = () => {
     totalDistance,
     formatTime,
     formatDistance,
+    checkTerritoryOverlap,
+    claimTerritory,
   } = useGame();
   
   const { user } = useAuth();

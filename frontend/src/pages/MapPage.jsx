@@ -560,7 +560,7 @@ const MapPage = () => {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleBrandClick(territory);
+                        handleBrandDoubleClick(territory);
                       }}
                       className="mt-2 text-xs text-blue-600 hover:underline font-semibold"
                     >

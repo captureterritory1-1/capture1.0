@@ -646,10 +646,19 @@ export const GameProvider = ({ children }) => {
     return km.toFixed(2);
   }, [userPreferences.unit]);
 
-  // Update preferences
-  const updatePreferences = useCallback((newPrefs) => {
-    setUserPreferences((prev) => ({ ...prev, ...newPrefs }));
-  }, []);
+  // Update preferences (both local state and backend)
+  const updatePreferences = useCallback((newPrefs, userId = null) => {
+    setUserPreferences((prev) => {
+      const updated = { ...prev, ...newPrefs };
+      
+      // Save to backend if userId is provided
+      if (userId) {
+        savePreferencesToBackend(userId, updated);
+      }
+      
+      return updated;
+    });
+  }, [savePreferencesToBackend]);
 
   // Get total stats (without area)
   const getTotalStats = useCallback(() => {

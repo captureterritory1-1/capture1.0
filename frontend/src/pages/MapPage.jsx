@@ -1,20 +1,52 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Polyline, Polygon, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { useGame } from '../context/GameContext';
+import { useGame, MAP_BOUNDS } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import TrackingSheet from '../components/TrackingSheet';
 import ScratchCard from '../components/ScratchCard';
+import ClaimTerritoryModal from '../components/ClaimTerritoryModal';
 import { toast } from 'sonner';
-import { Navigation } from 'lucide-react';
+import { Navigation, Layers } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// Map tile URLs
+// Map tile URLs - Satellite + Hybrid options
 const MAP_TILES = {
+  // Satellite imagery (Esri World Imagery)
+  satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  // Road labels overlay
+  labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+  // CartoDB options (fallback/alternative)
   light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
   dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
 };
+
+// Map view options
+const MAP_VIEWS = {
+  satellite: { name: 'Satellite', tiles: ['satellite', 'labels'] },
+  hybrid: { name: 'Hybrid', tiles: ['satellite', 'labels'] },
+  streets: { name: 'Streets', tiles: ['light'] },
+  dark: { name: 'Dark', tiles: ['dark'] },
+};
+
+// Bannerghatta Road center and bounds
+const BANNERGHATTA_CENTER = [12.8988, 77.6006];
+const MAP_CONFIG = {
+  center: BANNERGHATTA_CENTER,
+  defaultZoom: 16,
+  minZoom: 14,
+  maxZoom: 19,
+  bounds: [[MAP_BOUNDS.south, MAP_BOUNDS.west], [MAP_BOUNDS.north, MAP_BOUNDS.east]],
+};
+
+// Fix for default marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;

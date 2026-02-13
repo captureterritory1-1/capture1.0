@@ -1,118 +1,133 @@
 # CAPTURE PWA - Product Requirements Document
 
 ## Original Problem Statement
-Build a mobile-first Progressive Web App (PWA) called "CAPTURE" - a territory capture game where users run/walk to claim areas on a map. The app features brand-sponsored territories with gamified scratch cards for rewards, and real-time multiplayer where users can see and claim each other's territories.
+Build a mobile-first Progressive Web App (PWA) called "CAPTURE" - a territory capture game where users run/walk to claim areas on a map. Hyper-local multiplayer experience centered on Bannerghatta Road, Bangalore for the Vibe Coding Hackathon.
+
+## Hackathon V2 Update - Hyper-Realistic Map Engine
+
+### Map Configuration
+- **Tile Provider:** Esri World Imagery (satellite) + World Transportation (labels)
+- **Location:** Hard-locked to Bannerghatta Road, Bangalore
+- **Center:** [12.8988, 77.6006]
+- **Zoom:** Default 16, Min 14, Max 19
+- **Bounds:** North 12.92, South 12.87, East 77.63, West 77.57
+- **Panning:** Restricted to Bannerghatta area only
+
+### Map Views (Toggle Button)
+1. **Satellite** - Esri World Imagery + road labels (default)
+2. **Streets** - CartoDB Light
+3. **Dark** - CartoDB Dark Matter
+
+## Brand Territories - Bannerghatta Road Landmarks
+
+### MuscleBlaze (3 Territories) - Orange #FF6B00
+1. **Decathlon Bannerghatta** - Near Gottigere junction
+2. **Meenakshi Mall** - Main entrance area
+3. **Hulimavu Gate** - Junction
+
+### Super You (2 Territories) - Red #EF4444
+4. **Arekere Signal** - Intersection
+5. **IIM Bangalore** - Wall strip
+
+### The Whole Truth (2 Territories) - Purple #6B21A8
+6. **Vega City Mall** - Mall zone
+7. **Jayadeva Flyover** - Start area
+
+## Tracking Sheet UI (New Design)
+
+### Header
+- "Ready to Capture" / "Capturing..." status
+- Yellow pulse indicator when capturing
+- **BG indicator** - Green dot with "BG" label (background tracking)
+- **GPS quality** - 4-bar signal strength indicator
+
+### Metrics (3-Column Grid)
+- **DISTANCE** - 0.00 km
+- **DURATION** - 00:00
+- **AVG PACE** - --:-- min/km
+
+### Action Buttons
+- **Start Capture** - Orange gradient (amber-500 to orange-500)
+- **Pause/Resume** - Zinc-800 background
+- **End** - Zinc-800 background
+- **Hold to Finish** - Red confirmation button with progress bar
+
+## Interaction Control
+
+### Single Click on Territory
+- Triggers flyTo animation (zoom 18, 1.5s duration)
+- Toast: "Flying to [territory name]. Double-tap to open reward"
+- Does NOT open modal
+
+### Double Click on Territory
+- Triggers flyTo animation
+- Opens scratch card modal after 1.6s delay
+- Shows brand reward
 
 ## Core Features
 
-### 1. Authentication (MOCKED)
-- Premium login/signup screens with dark runner photo background
-- Bold "CAPTURE" branding (italic, uppercase)
-- **Sign Up button: White background, black text**
-- **Sign In button: Black background, white text**
-- Any email/password works (mock implementation)
+### Authentication (MOCKED)
+- Premium login/signup with dark runner background
+- Any email/password works
 
-### 2. Real-Time Multiplayer Database
-- **MongoDB stores all territories** from all users
-- User A's captured territory is visible to User B immediately
-- `allTerritories` state syncs from backend via `/api/territories`
-- Territories persist across sessions
+### Scratch Card Gamification
+- Clean brand logo as scratchable surface (no overlay text)
+- Confetti animation on reveal
+- Prize codes: CAPTURE500, SUPERYOU30, TRUTHBAR
 
-### 3. Territory Claiming (Over-Capture)
-- Users can claim/over-capture existing territories
-- API endpoint: `PUT /api/territories/{id}/claim`
-- Updates owner_id, color, and stores previous_owner
-- `checkTerritoryOverlap()` detects intersecting territories
-- `claimTerritory()` updates ownership in database
+### Territory Claiming (Over-Capture)
+- Claim Territory modal when overlap detected
+- Updates owner_id in database
+- Changes polygon color to new owner's color
 
-### 4. Map Core
-- Uses `react-leaflet` with CartoDB tiles
-- **Light Mode:** CartoDB Positron tiles
-- **Dark Mode:** CartoDB Dark Matter tiles
-- Real-time GPS tracking with "Blue Dot" user location
-- Fly-to animation when clicking territories
-
-### 5. Brand Territories (7 Total)
-**MuscleBlaze (3 territories):**
-- Indiranagar 12th Main, Koramangala 80ft Road, HSR Layout Sector 2
-- Color: #FF6B00 (Orange), Prize: ₹500 OFF
-
-**Super You (2 territories):**
-- Indiranagar 100ft Road, Indiranagar Double Road
-- Color: #EF4444 (Red), Prize: 30% OFF
-
-**The Whole Truth (2 territories):**
-- Koramangala 5th Block, Sony World Signal
-- Color: #6B21A8 (Purple), Prize: FREE BAR
-
-### 6. Scratch Card Gamification
-- Full-screen modal with brand-colored header
-- **Clean scratch surface: ONLY brand logo (no overlay text/emojis)**
-- Image proxy endpoint for CORS-safe canvas drawing
-- Confetti animation on prize reveal
-- Copy coupon code functionality
-
-### 7. Metrics (Area REMOVED)
-- **Stats displayed: Territories, Distance (km), Time (mm:ss)**
-- **Area metric removed from:**
-  - Profile page stats grid
-  - Territory popups on map
-  - Run summary after capture
-  - Recent captures list
-
-### 8. Profile Features
-- Profile Picture Upload (cloud storage via MongoDB)
-- Camera icon badge for upload trigger
-- **3-column stats grid: Territories | Distance | Time**
+### Profile Features
+- Profile picture upload (MongoDB cloud storage)
 - Dark/Light mode toggle
-- Recent captures list (shows distance/time, not area)
+- Stats: Territories | Distance | Time (no area)
 
 ## Tech Stack
 - **Frontend:** React (Vite), Tailwind CSS, Shadcn/UI
 - **Backend:** FastAPI with MongoDB
-- **Database:** MongoDB (territories, users, profile_pictures collections)
-- **Mapping:** react-leaflet, leaflet, turf.js
+- **Mapping:** react-leaflet, Esri tiles, turf.js
 - **State:** React Context API
 
 ## API Endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/health` | GET | Health check |
-| `/api/territories` | GET/POST | Get all/create territory |
-| `/api/territories/{id}` | GET/DELETE | Single territory |
-| `/api/territories/{id}/claim` | PUT | Claim/over-capture territory |
+| `/api/territories` | GET/POST | Territory CRUD |
+| `/api/territories/{id}/claim` | PUT | Claim/over-capture |
 | `/api/proxy-image` | GET | Image proxy for CORS |
-| `/api/brand-territories` | GET | Sponsored brand territories |
-| `/api/profile-picture/{user_id}` | GET/POST/DELETE | Profile picture |
-| `/api/leaderboard` | GET | Top users |
+| `/api/profile-picture/{user_id}` | GET/POST | Profile picture |
 
-## What's Implemented (as of Feb 2026)
-1. ✅ Premium login/signup (white Sign Up button)
-2. ✅ Real-time MongoDB database for multi-user territories
-3. ✅ Territory claiming API endpoint
-4. ✅ Clean scratch cards (logo only, no overlay)
-5. ✅ Area metric removed from all UI
-6. ✅ Profile picture upload to cloud
-7. ✅ Dark/Light mode toggle
-8. ✅ 7 brand territories with real logos
+## What's Implemented (Hackathon Ready)
+1. ✅ Hyper-realistic Esri satellite map
+2. ✅ Bannerghatta Road hard-lock with bounds
+3. ✅ 7 brand territories at real landmarks
+4. ✅ GPS quality & BG indicators
+5. ✅ Avg Pace metric during capture
+6. ✅ Pause/Resume functionality
+7. ✅ Single click flyTo, Double click scratch card
+8. ✅ Layer toggle (satellite/streets/dark)
+9. ✅ Claim Territory modal
+10. ✅ Clean scratch cards (logo only)
 
 ## What's Mocked
-- User authentication (any email/password works)
-- User sessions (localStorage only)
+- User authentication (any credentials work)
+- User sessions
+
+## Demo Mode (Hackathon)
+- Pre-seeded brand territories visible immediately
+- Fast login (any email/password)
+- Visual impact on load (satellite imagery)
+- 7 territories create competitive feel
 
 ## P0 - Next Tasks
-1. Real JWT authentication with password hashing
-2. UI for "Claim Territory" button when overlap detected
-3. Real-time WebSocket updates for territory changes
+1. Real JWT authentication
+2. WebSocket for real-time territory updates
+3. Multi-user territory sync
 
 ## P1 - Future Features
-1. Friends functionality
-2. Leaderboard with actual user rankings
-3. Push notifications for territory challenges
-4. Social sharing of captured territories
-
-## P2 - Enhancements
-1. Offline mode with service worker
-2. More brand partnerships
-3. Achievement badges
-4. Territory trading/selling
+1. Friends system
+2. Leaderboard
+3. Push notifications
+4. Social sharing

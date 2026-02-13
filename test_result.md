@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the CAPTURE app refinements at https://area-claim.preview.emergentagent.com/ - Verify specific fixes: 1) Navigation Always Visible on all pages, 2) GPS Blue Dot Immediately Visible before Start Capture, 3) Capture Flow Logic (Start/End Capture buttons and Ready to Capture text), 4) MuscleBlaze Brand Territories with golden borders and logos, 5) Mobile Viewport without unwanted scrolling."
+user_problem_statement: "Test the CAPTURE app refinements at https://polygame.preview.emergentagent.com/ - Verify specific fixes: 1) Navigation Always Visible on all pages, 2) GPS Blue Dot Immediately Visible before Start Capture, 3) Capture Flow Logic (Start/End Capture buttons and Ready to Capture text), 4) MuscleBlaze Brand Territories with golden borders and logos, 5) Mobile Viewport without unwanted scrolling."
 
 frontend:
   - task: "Login Page"

@@ -1,0 +1,169 @@
+<analysis>**original_problem_statement:**
+The user wants to build a mobile-first Progressive Web App (PWA) called CAPTURE using React and Vite. The core concept is a territory-capture game where users run in the real world to draw and claim polygons on a map.
+
+**PRODUCT REQUIREMENTS:**
+-   **Aesthetic:** Premium, minimalist design inspired by Apple Fitness/Strava, with a dark mode, high-contrast text, and amber/yellow accents.
+-   **Authentication:** A persistent user authentication system. The app has moved from mock login to a FastAPI/MongoDB backend with JWT.
+-   **Map Core:** A hyper-realistic satellite map using  that is globally navigable but defaults to Bannerghatta Road, Bangalore. It must feature 7 hardcoded, road-aligned brand territories.
+-   **Core Gameplay Loop:** Users track their runs to draw a polyline on the map. If the path forms a closed loop, they capture the territory. The app supports a multiplayer environment where all users' captured territories are visible, and users can over-capture enemy territories.
+-   **Gamification:** Clicking on a brand territory opens a full-screen modal with a scratch card where the user scratches off the brand's actual logo to reveal a prize.
+-   **Profile & Social:** The profile section settings (Theme, Territory Color) must be fully functional and persistent. After a successful capture, the app must generate a Strava-style shareable image displaying the territory shape and run statistics.
+-   **Metrics:** The primary run metrics are Distance, Duration, and Average Pace. Area Covered has been explicitly removed.
+
+**User's preferred language**: English
+
+**what currently exists?**
+A full-stack application with a React/Vite frontend and a FastAPI/MongoDB backend. The UI reflects a premium, dark-themed fitness app. Core features are implemented, including JWT authentication, a globally navigable satellite map (defaulting to Bannerghatta Road), real-time GPS tracking, territory capture logic, and a scratch card game with actual brand logos. The backend persists user and territory data, enabling a basic multiplayer view where all captured territories are displayed. The UI for the login page, tracking sheet, and profile stats has been significantly polished, and previous bugs (CORS issues, UI misalignments) have been fixed.
+
+**Last working item**:
+-   Last item agent was working: The agent was actively implementing two major features from the user's latest request:
+    1.  **Making all Profile Page settings fully functional and persistent** (Theme toggle, territory color picker, etc.).
+    2.  **Creating a Strava-style shareable capture image** that generates programmatically after a successful run.
+-   Status: **IN PROGRESS**
+-   Agent Testing Done: N
+-   Which testing method agent to use? both
+-   User Testing Done: N
+
+**All Pending/In progress Issue list**:
+-   There are no outstanding bugs; the current focus is on feature development.
+
+**In progress Task List**:
+-   **Task 1: Implement Fully Functional Profile Settings (P0)**
+    -   **Where to resume:** The agent has created placeholder components (, ) and has overwritten . The next step is to build the logic inside these components and the profile page to manage and persist user preferences (theme, color) to the MongoDB backend via API calls.
+    -   **What will be achieved with this?** The profile page will transform from a static UI into a fully interactive and customizable section of the app, with user choices persisting across sessions.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** both
+    -   **Blocked on something:** None
+
+-   **Task 2: Implement Strava-Style Shareable Capture Image (P0)**
+    -   **Where to resume:** The agent has created a placeholder . The next step is to implement the image generation logic within this component, likely using a library like  to render the captured territory shape, run stats, and branding onto an HTML element and convert it to an image. This modal needs to be triggered from  after a successful capture.
+    -   **What will be achieved with this?** A key social and reward feature will be added, enabling users to share their achievements on social media.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Frontend
+    -   **Blocked on something:** None
+
+**Upcoming and Future Tasks**
+-   **Upcoming Tasks:**
+    -   **(P0) Finalize Over-Capture Mechanic:** The backend API exists, but the frontend flow needs to be completed. This involves implementing the  and triggering it on an attempt to capture an existing territory, then updating the map UI in real-time upon a successful claim.
+    -   **(P1) Real-time Multiplayer Updates:** Implement WebSockets or another real-time solution so that territory changes on the map are instantly visible to all active users without needing a page refresh.
+-   **Future Tasks:**
+    -   **(P1) Connect Friends and Ranks Pages:** The UI for these sections exists but is static. They need to be connected to the backend to display leaderboards and friend data.
+    -   **(P2) Territory Clustering:** To improve performance and UX when zoomed out on the global map, implement a clustering mechanism for territories.
+
+**Completed work in this session**
+-   **Premium UI & UX Overhaul:**
+    -   Redesigned the Login/Signup pages with a modern, dark aesthetic using a runner background image.
+    -   Fixed critical UI bugs on the signup page (button visibility, image alignment).
+    -   Redesigned the  to match the new UI, including adding an Avg Pace metric.
+    -   Cleaned the  UI by removing all overlay text and emojis.
+-   **Hyper-Realistic & Global Map:**
+    -   Switched map tiles to Esri World Imagery for a satellite view.
+    -   Removed geographic restrictions (), enabling full global navigation while keeping Bannerghatta Road as the default starting view.
+    -   Added a Home button to re-center the map on Bannerghatta.
+    -   Updated the 7 brand territories with realistic, road-aligned polygons in Bannerghatta.
+    -   Implemented distinct single-click (fly-to) and double-click (open modal) interactions for territories.
+-   **Backend & Data Persistence:**
+    -   Successfully fixed a CORS issue preventing brand logos from loading by implementing a backend image proxy.
+    -   Refined the database schema and backend endpoints to support multiplayer functionality, allowing all users' territories to be fetched and displayed.
+    -   Added a backend API endpoint () for the territory over-capture feature.
+    -   Removed the Area Covered metric from all data models and UI components.
+
+**Earlier issues found/mentioned but not fixed**
+-   **Issue 1: GPS Blue Dot Visibility in Automated Tests**
+    -   **Debug checklist:** This is a known environmental limitation where the test browser blocks geolocation. It is not a code bug.
+    -   **Why to solve this issue and what will be achieved with this?** Acknowledging this prevents wasted debugging time. A UI fallback (Finding your location...) is already in place.
+    -   **Should Test frontend/backend/both after fix:** NA
+    -   **Is recurring issue?** Y
+
+**Known issue recurrence from previous fork**
+-   N/A
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Frontend:** React (Vite), Tailwind CSS, Shadcn/UI, , , Framer Motion.
+-   **Backend:** FastAPI, MongoDB (with  for async operations).
+-   **State Management:** React Context API.
+-   **Mapping:** Esri World Imagery tile layers for a satellite/hybrid view.
+-   **Key Features:** Real-time GPS tracking, multiplayer territory display, programmatic image generation (planned), custom map interactions (single/double click).
+
+**key DB schema**
+-   ****: 
+-   ****: 
+
+**changes in tech stack**
+-   The user rejected a planned migration to Supabase, confirming the continued use of the existing FastAPI/MongoDB stack.
+-   Map tiles were upgraded from CartoDB to Esri World Imagery to provide a realistic satellite view.
+
+**All files of reference**
+-   : Actively being modified for functional settings.
+-   : Placeholder for the shareable image feature.
+-   : The core map component, recently updated for global navigation and new click handlers.
+-   : The primary logic hub for game state and actions.
+-   : The single-file FastAPI server containing all API endpoints.
+
+**Areas that need refactoring**:
+-   **:** This file is becoming a monolith. It should be broken down into smaller, more focused custom hooks (e.g., , ).
+-   **:** All API routes are in a single file. For better organization and scalability, it should be refactored into a router-based structure (e.g., , ).
+
+**key api endpoints**
+-   , 
+-   ,  (for preference updates)
+-    (GET all, POST new)
+-    (POST)
+-    (GET)
+
+**Critical Info for New Agent**
+-   **Current Focus:** The highest priority is to complete the two in-progress tasks: making the Profile Page settings functional and implementing the Strava-style shareable capture image.
+-   **No Supabase:** Do not suggest or attempt to integrate Supabase. The tech stack is locked to FastAPI and MongoDB.
+-   **Global Map Behavior:** The map is intentionally unlocked for global navigation. Do not re-introduce  or any other geographic restrictions. The app should start at Bannerghatta but be explorable worldwide.
+-   **Persistence is Mandatory:** All user-specific settings (theme, color, etc.) must be persisted in the database via the backend API, not just in .
+-   **Shareable Image is Not a Screenshot:** The shareable capture image must be programmatically generated (e.g., using HTML Canvas), not a simple screenshot of the UI.
+
+**documents and test reports created in this job**
+-   
+-   
+-   
+-   
+-   
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **USER:** Asked to fix the alignment of the runner image on the login screen.
+2.  **AGENT:** Fixed the alignment.
+3.  **USER:** Provided a master prompt to unlock the global map and remove all geo-restrictions.
+4.  **AGENT:** Implemented the global map unlock.
+5.  **AGENT:** Tool timed out while taking a screenshot.
+6.  **SYSTEM:** Notified the agent of a memory-related pod restart.
+7.  **AGENT:** Re-verified that the global map changes were correctly implemented.
+8.  **AGENT:** Summarized the completion of the global map task.
+9.  **USER:** Provided the current master prompt: make all profile settings functional and implement a Strava-style shareable capture image, explicitly stating to remove the profile picture feature from the scope.
+10. **AGENT:** Acknowledged the new prompt and began implementation by creating placeholder files for the required components.
+
+**Project Health Check:**
+-   **Broken:** None
+-   **Mocked:**
+    -   Functionality of the Friends and Ranks pages.
+    -   The new profile settings and modals are UI-only placeholders until the current task is completed.
+    -   Real-time updates for multiplayer actions (requires page refresh).
+
+**3rd Party Integrations**
+-    & 
+-   
+-   
+-   
+-    & 
+-   
+-   **Esri Leaflet**: For  satellite tiles.
+
+**Testing status**
+-   **Testing agent used after significant changes:** YES
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** None
+-   **Known regressions:** None
+
+**Credentials to test flow:**
+-   The app uses a JWT-based authentication system. Register a new user with any email/password to test. The testing agent has also created several test users (e.g., ).
+
+**What agent forgot to execute**
+-   The agent has correctly followed all recent user instructions and is on track with the latest master prompt. No requirements have been overlooked.</analysis>

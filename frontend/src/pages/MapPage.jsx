@@ -574,7 +574,8 @@ const MapPage = () => {
                 position={getPolygonCenter(territory.coordinates)}
                 icon={createBrandLogoIcon(territory)}
                 eventHandlers={{
-                  click: () => handleBrandClick(territory),
+                  click: () => handleBrandSingleClick(territory),
+                  dblclick: () => handleBrandDoubleClick(territory),
                 }}
               />
             </React.Fragment>

@@ -44,10 +44,18 @@ class StatusCheckCreate(BaseModel):
     client_name: str
 
 # User Models
+class TerritoryColorPreference(BaseModel):
+    id: str = "red"
+    name: str = "Ruby Red"
+    hex: str = "#EF4444"
+
 class UserPreferences(BaseModel):
     unit: str = "km"  # km or miles
     activity_type: str = "run"  # run or walk
-    territory_color: str = "#EF4444"  # hex color
+    territory_color: TerritoryColorPreference = Field(default_factory=TerritoryColorPreference)
+    theme: str = "dark"  # dark or light
+    notifications_enabled: bool = True
+    privacy: str = "public"  # public or private
 
 class UserCreate(BaseModel):
     email: str
@@ -185,7 +193,48 @@ async def update_user_preferences(user_id: str, preferences: UserPreferences):
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     
-    return {"message": "Preferences updated successfully"}
+    return {"success": True, "message": "Preferences updated successfully", "preferences": preferences.model_dump()}
+
+@api_router.get("/users/{user_id}/preferences")
+async def get_user_preferences(user_id: str):
+    """Get user preferences"""
+    user = await db.users.find_one({"id": user_id}, {"_id": 0, "preferences": 1})
+    
+    if not user:
+        # Return default preferences if user not found
+        return {"success": True, "preferences": UserPreferences().model_dump()}
+    
+    return {"success": True, "preferences": user.get("preferences", UserPreferences().model_dump())}
+
+@api_router.patch("/users/{user_id}/preferences")
+async def patch_user_preferences(user_id: str, updates: dict):
+    """Partially update user preferences (only update provided fields)"""
+    # Get current preferences
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    
+    if not user:
+        # Create user with preferences if doesn't exist
+        new_user = User(
+            id=user_id,
+            email=f"{user_id}@capture.app",
+            display_name="Runner",
+            preferences=UserPreferences(**updates)
+        )
+        doc = new_user.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.users.insert_one(doc)
+        return {"success": True, "message": "User created with preferences", "preferences": new_user.preferences.model_dump()}
+    
+    # Merge existing preferences with updates
+    current_prefs = user.get("preferences", {})
+    merged_prefs = {**current_prefs, **updates}
+    
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"preferences": merged_prefs}}
+    )
+    
+    return {"success": True, "message": "Preferences updated", "preferences": merged_prefs}
 
 
 # ========================

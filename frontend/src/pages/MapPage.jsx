@@ -362,6 +362,7 @@ const MapPage = () => {
     
     setShowConfirmEnd(false);
     setHoldProgress(0);
+    setIsPaused(false);
   };
 
   const handleCancelEnd = () => {
@@ -379,8 +380,36 @@ const MapPage = () => {
     ];
   };
 
-  // Handle brand territory click - fly to and show scratch card
-  const handleBrandClick = (territory) => {
+  // Handle SINGLE click on brand territory - fly to (NO modal)
+  const handleBrandSingleClick = (territory) => {
+    // Clear any existing double-click timer
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+    }
+    
+    // Set a timer to handle single click (wait to see if it's a double click)
+    clickTimerRef.current = setTimeout(() => {
+      const center = getPolygonCenter(territory.coordinates);
+      setFlyToTarget({
+        position: center,
+        zoom: 18
+      });
+      
+      toast.info(`Flying to ${territory.name}`, {
+        description: 'Double-tap to open reward',
+        duration: 2000,
+      });
+    }, 250); // Wait 250ms to distinguish from double click
+  };
+
+  // Handle DOUBLE click on brand territory - show scratch card
+  const handleBrandDoubleClick = (territory) => {
+    // Clear single click timer
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+    
     const center = getPolygonCenter(territory.coordinates);
     setFlyToTarget({
       position: center,
@@ -392,10 +421,35 @@ const MapPage = () => {
     setTimeout(() => {
       setShowScratchCard(true);
     }, 1600);
+  };
+
+  // Handle territory claim
+  const handleClaimTerritory = async (territory) => {
+    const result = await claimTerritory(
+      territory.id,
+      user?.id,
+      userPreferences.territoryColor.hex
+    );
     
-    toast.info(`Flying to ${territory.name}`, {
-      duration: 2000,
-    });
+    if (result.success) {
+      toast.success('Territory claimed!', {
+        description: 'The zone is now yours.',
+      });
+    } else {
+      toast.error(result.message);
+    }
+    
+    setShowClaimModal(false);
+    setTerritoryToClaim(null);
+  };
+
+  // Toggle map view
+  const handleToggleMapView = () => {
+    const views = ['satellite', 'streets', 'dark'];
+    const currentIndex = views.indexOf(mapView);
+    const nextIndex = (currentIndex + 1) % views.length;
+    setMapView(views[nextIndex]);
+    toast.info(`Map: ${views[nextIndex].charAt(0).toUpperCase() + views[nextIndex].slice(1)}`);
   };
 
   // Clear fly target after animation
@@ -409,15 +463,53 @@ const MapPage = () => {
     setSelectedBrand(null);
   };
 
+  // Get current tile layers based on map view
+  const getTileLayers = () => {
+    if (mapView === 'satellite' || mapView === 'hybrid') {
+      return (
+        <>
+          <TileLayer
+            url={MAP_TILES.satellite}
+            attribution='&copy; Esri'
+            maxZoom={19}
+          />
+          <TileLayer
+            url={MAP_TILES.labels}
+            attribution='&copy; Esri'
+            maxZoom={19}
+          />
+        </>
+      );
+    } else if (mapView === 'dark') {
+      return (
+        <TileLayer
+          url={MAP_TILES.dark}
+          attribution='&copy; CartoDB'
+          maxZoom={19}
+        />
+      );
+    } else {
+      return (
+        <TileLayer
+          url={MAP_TILES.light}
+          attribution='&copy; CartoDB'
+          maxZoom={19}
+        />
+      );
+    }
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col bg-background theme-transition" style={{ height: '100dvh' }}>
       {/* Map Container - Takes all available space above nav */}
       <div className="flex-1 relative pb-20">
         <MapContainer
-          center={mapCenter}
-          zoom={15}
+          center={MAP_CONFIG.center}
+          zoom={MAP_CONFIG.defaultZoom}
           className="h-full w-full"
           zoomControl={false}
+          maxBounds={MAP_CONFIG.bounds}
+          maxBoundsViscosity={1.0}
           attributionControl={false}
         >
           {/* Dynamic Map Tiles based on theme */}

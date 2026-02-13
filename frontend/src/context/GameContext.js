@@ -739,12 +739,15 @@ export const GameProvider = ({ children }) => {
     userPreferences,
     territoryColors: TERRITORY_COLORS,
     isLoadingTerritories,
+    preferencesLoaded,
     
     // Actions
     startTracking,
     stopTracking,
     analyzeAndCreateTerritory,
     updatePreferences,
+    loadPreferencesFromBackend,
+    savePreferencesToBackend,
     setMapCenter,
     setCurrentPosition,
     fetchAllTerritories,

@@ -17,11 +17,8 @@ export const ThemeProvider = ({ children }) => {
     if (stored) {
       return stored === 'dark';
     }
-    // Check system preference
-    if (typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
+    // Default to dark mode for CAPTURE app
+    return true;
   });
 
   // Apply theme class to document

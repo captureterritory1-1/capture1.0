@@ -72,23 +72,40 @@ const ProfilePage = () => {
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { getTotalStats, userPreferences, userTerritories, territoryColors, updatePreferences } = useGame();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { 
+    getTotalStats, 
+    userPreferences, 
+    userTerritories, 
+    territoryColors, 
+    updatePreferences,
+    loadPreferencesFromBackend 
+  } = useGame();
+  const { isDarkMode, toggleTheme, setTheme } = useTheme();
   const stats = getTotalStats();
   
   const [profilePicture, setProfilePicture] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    const stored = localStorage.getItem('capture_notifications');
-    return stored !== 'false'; // Default to true
-  });
-  const [privacySetting, setPrivacySetting] = useState(() => {
-    const stored = localStorage.getItem('capture_privacy');
-    return stored || 'public';
-  });
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Load preferences from backend on mount
+  useEffect(() => {
+    if (user?.id) {
+      loadPreferencesFromBackend(user.id);
+    }
+  }, [user?.id, loadPreferencesFromBackend]);
+
+  // Sync theme from preferences when loaded
+  useEffect(() => {
+    if (userPreferences.theme) {
+      const shouldBeDark = userPreferences.theme === 'dark';
+      if (isDarkMode !== shouldBeDark) {
+        setTheme(shouldBeDark);
+      }
+    }
+  }, [userPreferences.theme, isDarkMode, setTheme]);
 
   // Load profile picture on mount
   useEffect(() => {
@@ -115,16 +132,6 @@ const ProfilePage = () => {
     loadProfilePicture();
   }, [user?.id]);
 
-  // Save notifications preference
-  useEffect(() => {
-    localStorage.setItem('capture_notifications', notificationsEnabled.toString());
-  }, [notificationsEnabled]);
-
-  // Save privacy preference
-  useEffect(() => {
-    localStorage.setItem('capture_privacy', privacySetting);
-  }, [privacySetting]);
-
   const handleLogout = () => {
     logout();
     localStorage.removeItem('capture_profile_picture');
@@ -132,29 +139,34 @@ const ProfilePage = () => {
     navigate('/login');
   };
 
-  const handleThemeToggle = () => {
+  const handleThemeToggle = async () => {
+    const newTheme = isDarkMode ? 'light' : 'dark';
     toggleTheme();
+    
+    // Save to backend
+    updatePreferences({ theme: newTheme }, user?.id);
     toast.success(isDarkMode ? 'Light mode activated' : 'Dark mode activated');
   };
 
   const handleNotificationsToggle = () => {
-    setNotificationsEnabled(!notificationsEnabled);
-    toast.success(notificationsEnabled ? 'Notifications disabled' : 'Notifications enabled');
+    const newValue = !userPreferences.notificationsEnabled;
+    updatePreferences({ notificationsEnabled: newValue }, user?.id);
+    toast.success(newValue ? 'Notifications enabled' : 'Notifications disabled');
   };
 
   const handlePrivacyToggle = () => {
-    const newSetting = privacySetting === 'public' ? 'private' : 'public';
-    setPrivacySetting(newSetting);
+    const newSetting = userPreferences.privacy === 'public' ? 'private' : 'public';
+    updatePreferences({ privacy: newSetting }, user?.id);
     toast.success(`Profile is now ${newSetting}`);
   };
 
   const handleColorSelect = (color) => {
-    updatePreferences({ territoryColor: color });
+    updatePreferences({ territoryColor: color }, user?.id);
     toast.success(`Territory color changed to ${color.name}`);
   };
 
   const handlePreferencesSave = (newPrefs) => {
-    updatePreferences(newPrefs);
+    updatePreferences(newPrefs, user?.id);
     toast.success('Preferences saved');
   };
 

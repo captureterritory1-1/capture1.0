@@ -74,7 +74,7 @@ const LoginPage = () => {
         className="absolute inset-0 bg-cover bg-no-repeat"
         style={{ 
           backgroundImage: `url(${RUNNER_BG})`,
-          backgroundPosition: 'center 30%', // Center horizontally, slightly above center vertically
+          backgroundPosition: '45% 25%', // Slightly left of center to capture runner's body
         }}
       />
       

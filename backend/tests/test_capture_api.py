@@ -280,6 +280,201 @@ class TestProfilePictureEndpoints:
         print(f"✅ Profile picture deleted for {user_id}")
 
 
+class TestUserPreferencesEndpoints:
+    """User preferences GET/PATCH endpoint tests - Profile Settings"""
+    
+    def test_get_preferences_default(self):
+        """Test getting preferences for non-existent user returns defaults"""
+        response = requests.get(f"{BASE_URL}/api/users/nonexistent_pref_user/preferences")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        assert "preferences" in data
+        # Verify default values
+        prefs = data["preferences"]
+        assert prefs["unit"] == "km"
+        assert prefs["activity_type"] == "run"
+        assert prefs["theme"] == "dark"
+        assert prefs["notifications_enabled"] == True
+        assert prefs["privacy"] == "public"
+        print("✅ Default preferences returned for non-existent user")
+    
+    def test_patch_theme_toggle(self):
+        """Test PATCH to toggle theme (dark/light)"""
+        user_id = "TEST_pref_theme_user"
+        
+        # Set theme to light
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json={"theme": "light"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        assert data["preferences"]["theme"] == "light"
+        print("✅ Theme set to light")
+        
+        # Toggle back to dark
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json={"theme": "dark"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["preferences"]["theme"] == "dark"
+        print("✅ Theme toggled back to dark")
+    
+    def test_patch_territory_color(self):
+        """Test PATCH to update territory color"""
+        user_id = "TEST_pref_color_user"
+        
+        # Set territory color to Ocean Blue
+        color_payload = {
+            "territory_color": {
+                "id": "blue",
+                "name": "Ocean Blue",
+                "hex": "#3B82F6"
+            }
+        }
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json=color_payload
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        assert data["preferences"]["territory_color"]["id"] == "blue"
+        assert data["preferences"]["territory_color"]["hex"] == "#3B82F6"
+        print("✅ Territory color updated to Ocean Blue")
+        
+        # Verify persistence with GET
+        get_response = requests.get(f"{BASE_URL}/api/users/{user_id}/preferences")
+        assert get_response.status_code == 200
+        get_data = get_response.json()
+        assert get_data["preferences"]["territory_color"]["id"] == "blue"
+        print("✅ Territory color persisted correctly")
+    
+    def test_patch_preferences_unit_and_activity(self):
+        """Test PATCH to update distance unit and activity type"""
+        user_id = "TEST_pref_unit_user"
+        
+        # Set to miles and walking
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json={"unit": "miles", "activity_type": "walk"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        assert data["preferences"]["unit"] == "miles"
+        assert data["preferences"]["activity_type"] == "walk"
+        print("✅ Unit set to miles, activity to walk")
+        
+        # Verify persistence
+        get_response = requests.get(f"{BASE_URL}/api/users/{user_id}/preferences")
+        assert get_response.status_code == 200
+        get_data = get_response.json()
+        assert get_data["preferences"]["unit"] == "miles"
+        assert get_data["preferences"]["activity_type"] == "walk"
+        print("✅ Unit and activity type persisted correctly")
+    
+    def test_patch_notifications_toggle(self):
+        """Test PATCH to toggle notifications on/off"""
+        user_id = "TEST_pref_notif_user"
+        
+        # Disable notifications
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json={"notifications_enabled": False}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        assert data["preferences"]["notifications_enabled"] == False
+        print("✅ Notifications disabled")
+        
+        # Enable notifications
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json={"notifications_enabled": True}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["preferences"]["notifications_enabled"] == True
+        print("✅ Notifications enabled")
+    
+    def test_patch_privacy_toggle(self):
+        """Test PATCH to toggle privacy (public/private)"""
+        user_id = "TEST_pref_privacy_user"
+        
+        # Set to private
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json={"privacy": "private"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        assert data["preferences"]["privacy"] == "private"
+        print("✅ Privacy set to private")
+        
+        # Set back to public
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json={"privacy": "public"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["preferences"]["privacy"] == "public"
+        print("✅ Privacy set to public")
+    
+    def test_patch_multiple_preferences_at_once(self):
+        """Test PATCH to update multiple preferences in single request"""
+        user_id = "TEST_pref_multi_user"
+        
+        # Update all preferences at once
+        payload = {
+            "theme": "light",
+            "unit": "miles",
+            "activity_type": "walk",
+            "notifications_enabled": False,
+            "privacy": "private",
+            "territory_color": {
+                "id": "purple",
+                "name": "Royal Purple",
+                "hex": "#A855F7"
+            }
+        }
+        response = requests.patch(
+            f"{BASE_URL}/api/users/{user_id}/preferences",
+            json=payload
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] == True
+        prefs = data["preferences"]
+        assert prefs["theme"] == "light"
+        assert prefs["unit"] == "miles"
+        assert prefs["activity_type"] == "walk"
+        assert prefs["notifications_enabled"] == False
+        assert prefs["privacy"] == "private"
+        assert prefs["territory_color"]["id"] == "purple"
+        print("✅ Multiple preferences updated in single request")
+        
+        # Verify all persisted
+        get_response = requests.get(f"{BASE_URL}/api/users/{user_id}/preferences")
+        assert get_response.status_code == 200
+        get_data = get_response.json()
+        get_prefs = get_data["preferences"]
+        assert get_prefs["theme"] == "light"
+        assert get_prefs["unit"] == "miles"
+        assert get_prefs["activity_type"] == "walk"
+        assert get_prefs["notifications_enabled"] == False
+        assert get_prefs["privacy"] == "private"
+        assert get_prefs["territory_color"]["id"] == "purple"
+        print("✅ All preferences persisted correctly")
+
+
 class TestLeaderboardEndpoint:
     """Leaderboard endpoint tests"""
     

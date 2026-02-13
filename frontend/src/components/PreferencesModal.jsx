@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { X, Check } from 'lucide-react';
@@ -11,6 +11,13 @@ const PreferencesModal = ({
   onSave,
 }) => {
   const [localPrefs, setLocalPrefs] = useState(preferences);
+
+  // Reset local prefs when modal opens or preferences change
+  useEffect(() => {
+    if (isOpen) {
+      setLocalPrefs(preferences);
+    }
+  }, [isOpen, preferences]);
 
   if (!isOpen) return null;
 

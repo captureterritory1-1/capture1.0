@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
 import { Switch } from '../components/ui/switch';
+import ColorPickerModal from '../components/ColorPickerModal';
+import PreferencesModal from '../components/PreferencesModal';
 import { 
   MapPin, 
   Route, 
@@ -32,24 +34,32 @@ const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { getTotalStats, userPreferences, userTerritories } = useGame();
+  const { getTotalStats, userPreferences, userTerritories, territoryColors, updatePreferences } = useGame();
   const { isDarkMode, toggleTheme } = useTheme();
   const stats = getTotalStats();
   
   const [profilePicture, setProfilePicture] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    const stored = localStorage.getItem('capture_notifications');
+    return stored !== 'false'; // Default to true
+  });
+  const [privacySetting, setPrivacySetting] = useState(() => {
+    const stored = localStorage.getItem('capture_privacy');
+    return stored || 'public';
+  });
   const fileInputRef = useRef(null);
 
   // Load profile picture on mount
   useEffect(() => {
     const loadProfilePicture = async () => {
-      // First check localStorage for quick load
       const cachedPic = localStorage.getItem('capture_profile_picture');
       if (cachedPic) {
         setProfilePicture(cachedPic);
       }
       
-      // Then try to fetch from server
       if (user?.id) {
         try {
           const response = await fetch(`${API_BASE}/api/profile-picture/${user.id}`);
@@ -67,6 +77,16 @@ const ProfilePage = () => {
     loadProfilePicture();
   }, [user?.id]);
 
+  // Save notifications preference
+  useEffect(() => {
+    localStorage.setItem('capture_notifications', notificationsEnabled.toString());
+  }, [notificationsEnabled]);
+
+  // Save privacy preference
+  useEffect(() => {
+    localStorage.setItem('capture_privacy', privacySetting);
+  }, [privacySetting]);
+
   const handleLogout = () => {
     logout();
     localStorage.removeItem('capture_profile_picture');
@@ -79,6 +99,27 @@ const ProfilePage = () => {
     toast.success(isDarkMode ? 'Light mode activated' : 'Dark mode activated');
   };
 
+  const handleNotificationsToggle = () => {
+    setNotificationsEnabled(!notificationsEnabled);
+    toast.success(notificationsEnabled ? 'Notifications disabled' : 'Notifications enabled');
+  };
+
+  const handlePrivacyToggle = () => {
+    const newSetting = privacySetting === 'public' ? 'private' : 'public';
+    setPrivacySetting(newSetting);
+    toast.success(`Profile is now ${newSetting}`);
+  };
+
+  const handleColorSelect = (color) => {
+    updatePreferences({ territoryColor: color });
+    toast.success(`Territory color changed to ${color.name}`);
+  };
+
+  const handlePreferencesSave = (newPrefs) => {
+    updatePreferences(newPrefs);
+    toast.success('Preferences saved');
+  };
+
   const handleProfilePictureClick = () => {
     fileInputRef.current?.click();
   };
@@ -87,13 +128,11 @@ const ProfilePage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
       toast.error('Please select a valid image file (JPEG, PNG, WebP, or GIF)');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image must be less than 5MB');
       return;
@@ -141,29 +180,39 @@ const ProfilePage = () => {
       label: 'Territory Color',
       value: userPreferences.territoryColor.name,
       color: userPreferences.territoryColor.hex,
+      onClick: () => setShowColorPicker(true),
     },
     {
       icon: Settings,
       label: 'Preferences',
       value: `${userPreferences.unit === 'km' ? 'Kilometers' : 'Miles'} • ${userPreferences.activityType === 'run' ? 'Running' : 'Walking'}`,
+      onClick: () => setShowPreferences(true),
     },
     {
       icon: Bell,
       label: 'Notifications',
-      value: 'On',
+      value: notificationsEnabled ? 'On' : 'Off',
+      hasToggle: true,
+      onToggle: handleNotificationsToggle,
+      isToggled: notificationsEnabled,
     },
     {
       icon: Shield,
       label: 'Privacy',
-      value: 'Public Profile',
+      value: privacySetting === 'public' ? 'Public Profile' : 'Private Profile',
+      hasToggle: true,
+      onToggle: handlePrivacyToggle,
+      isToggled: privacySetting === 'private',
     },
     {
       icon: HelpCircle,
       label: 'Help & Support',
+      onClick: () => toast.info('Help & Support coming soon!'),
     },
     {
       icon: Star,
       label: 'Rate CAPTURE',
+      onClick: () => toast.info('Thank you for your support!'),
     },
   ];
 
@@ -308,7 +357,7 @@ const ProfilePage = () => {
               <React.Fragment key={item.label}>
                 <button 
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors"
-                  onClick={item.hasToggle ? item.onToggle : undefined}
+                  onClick={item.hasToggle ? item.onToggle : item.onClick}
                 >
                   <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center theme-transition">
                     {item.color ? (
@@ -356,6 +405,23 @@ const ProfilePage = () => {
           CAPTURE v1.0.0
         </p>
       </div>
+
+      {/* Color Picker Modal */}
+      <ColorPickerModal
+        isOpen={showColorPicker}
+        onClose={() => setShowColorPicker(false)}
+        colors={territoryColors}
+        selectedColor={userPreferences.territoryColor}
+        onSelectColor={handleColorSelect}
+      />
+
+      {/* Preferences Modal */}
+      <PreferencesModal
+        isOpen={showPreferences}
+        onClose={() => setShowPreferences(false)}
+        preferences={userPreferences}
+        onSave={handlePreferencesSave}
+      />
     </div>
   );
 };

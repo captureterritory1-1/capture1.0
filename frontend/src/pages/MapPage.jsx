@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Polyline, Polygon, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { useGame, MAP_BOUNDS } from '../context/GameContext';
+import { useGame } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import TrackingSheet from '../components/TrackingSheet';
 import ScratchCard from '../components/ScratchCard';
 import ClaimTerritoryModal from '../components/ClaimTerritoryModal';
 import { toast } from 'sonner';
-import { Navigation, Layers } from 'lucide-react';
+import { Navigation, Layers, Home } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 // Map tile URLs - Satellite + Hybrid options

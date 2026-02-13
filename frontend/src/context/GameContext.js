@@ -11,16 +11,8 @@ export const useGame = () => {
   return context;
 };
 
-// BANNERGHATTA ROAD, BANGALORE - Hard locked location
+// BANNERGHATTA ROAD, BANGALORE - Default starting location (not a restriction)
 const BANGALORE_CENTER = [12.8988, 77.6006];
-
-// Map bounds for Bannerghatta Road area (prevents panning outside)
-export const MAP_BOUNDS = {
-  north: 12.9200,
-  south: 12.8700,
-  east: 77.6300,
-  west: 77.5700,
-};
 
 // API base URL for proxy
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';

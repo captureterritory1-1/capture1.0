@@ -228,8 +228,8 @@ const ProfilePage = () => {
     {
       icon: Palette,
       label: 'Territory Color',
-      value: userPreferences.territoryColor.name,
-      color: userPreferences.territoryColor.hex,
+      value: userPreferences.territoryColor?.name || 'Ruby Red',
+      color: userPreferences.territoryColor?.hex || '#EF4444',
       onClick: () => setShowColorPicker(true),
     },
     {
@@ -241,18 +241,18 @@ const ProfilePage = () => {
     {
       icon: Bell,
       label: 'Notifications',
-      value: notificationsEnabled ? 'On' : 'Off',
+      value: userPreferences.notificationsEnabled ? 'On' : 'Off',
       hasToggle: true,
       onToggle: handleNotificationsToggle,
-      isToggled: notificationsEnabled,
+      isToggled: userPreferences.notificationsEnabled !== false,
     },
     {
       icon: Shield,
       label: 'Privacy',
-      value: privacySetting === 'public' ? 'Public Profile' : 'Private Profile',
+      value: userPreferences.privacy === 'public' ? 'Public Profile' : 'Private Profile',
       hasToggle: true,
       onToggle: handlePrivacyToggle,
-      isToggled: privacySetting === 'private',
+      isToggled: userPreferences.privacy === 'private',
     },
     {
       icon: HelpCircle,

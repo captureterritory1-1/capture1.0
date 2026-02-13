@@ -32,21 +32,14 @@ const MAP_VIEWS = {
 
 // Bannerghatta Road center and bounds
 const BANNERGHATTA_CENTER = [12.8988, 77.6006];
+// GLOBAL MAP CONFIG - Bannerghatta is starting point, not restriction
 const MAP_CONFIG = {
   center: BANNERGHATTA_CENTER,
   defaultZoom: 16,
-  minZoom: 14,
-  maxZoom: 19,
-  bounds: [[MAP_BOUNDS.south, MAP_BOUNDS.west], [MAP_BOUNDS.north, MAP_BOUNDS.east]],
+  minZoom: 2,    // Allow world view
+  maxZoom: 19,   // Street-level detail
+  // NO bounds restriction - full global navigation
 };
-
-// Fix for default marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;

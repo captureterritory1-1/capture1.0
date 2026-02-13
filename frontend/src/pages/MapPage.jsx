@@ -271,7 +271,13 @@ const MapPage = () => {
   const [flyToTarget, setFlyToTarget] = useState(null);
   const [showScratchCard, setShowScratchCard] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState(null);
+  const [showClaimModal, setShowClaimModal] = useState(false);
+  const [territoryToClaim, setTerritoryToClaim] = useState(null);
+  const [mapView, setMapView] = useState('satellite'); // satellite, hybrid, streets, dark
+  const [isPaused, setIsPaused] = useState(false);
+  const [gpsAccuracy, setGpsAccuracy] = useState(null);
   const holdTimerRef = useRef(null);
+  const clickTimerRef = useRef(null);
 
   // Combine local and server territories for display
   const displayTerritories = allTerritories.length > 0 ? allTerritories : userTerritories;
@@ -282,6 +288,18 @@ const MapPage = () => {
       setInitialCentered(true);
     }
   }, [currentPosition, initialCentered]);
+
+  // Track GPS accuracy
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => setGpsAccuracy(pos.coords.accuracy),
+        () => setGpsAccuracy(null),
+        { enableHighAccuracy: true }
+      );
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+  }, []);
 
   const handleStartRun = () => {
     const started = startTracking();
@@ -294,6 +312,16 @@ const MapPage = () => {
 
   const handleEndRun = () => {
     setShowConfirmEnd(true);
+  };
+
+  const handlePauseRun = () => {
+    setIsPaused(true);
+    toast.info('Capture paused');
+  };
+
+  const handleResumeRun = () => {
+    setIsPaused(false);
+    toast.success('Capture resumed');
   };
 
   const handleHoldStart = () => {

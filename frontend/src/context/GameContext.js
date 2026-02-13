@@ -223,15 +223,21 @@ export const GameProvider = ({ children }) => {
   // Map center
   const [mapCenter, setMapCenter] = useState(BANGALORE_CENTER);
   
-  // User preferences
+  // User preferences - now synced with backend
   const [userPreferences, setUserPreferences] = useState(() => {
     const stored = localStorage.getItem('capture_preferences');
     return stored ? JSON.parse(stored) : {
       unit: 'km',
       activityType: 'run',
       territoryColor: TERRITORY_COLORS[0],
+      theme: 'dark',
+      notificationsEnabled: true,
+      privacy: 'public',
     };
   });
+  
+  // Track if preferences are loaded from backend
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   
   // Geolocation watch IDs - separate for passive tracking and active capture
   const [passiveWatchId, setPassiveWatchId] = useState(null);

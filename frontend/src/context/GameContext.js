@@ -317,10 +317,65 @@ export const GameProvider = ({ children }) => {
     }
   }, [savedRuns]);
 
-  // Save preferences to localStorage
+  // Save preferences to localStorage (for offline access)
   useEffect(() => {
     localStorage.setItem('capture_preferences', JSON.stringify(userPreferences));
   }, [userPreferences]);
+
+  // Load preferences from backend for logged-in user
+  const loadPreferencesFromBackend = useCallback(async (userId) => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(`${API_BASE}/api/users/${userId}/preferences`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.preferences) {
+          const backendPrefs = data.preferences;
+          
+          // Map backend format to frontend format
+          const mappedPrefs = {
+            unit: backendPrefs.unit || 'km',
+            activityType: backendPrefs.activity_type || 'run',
+            territoryColor: backendPrefs.territory_color || TERRITORY_COLORS[0],
+            theme: backendPrefs.theme || 'dark',
+            notificationsEnabled: backendPrefs.notifications_enabled !== false,
+            privacy: backendPrefs.privacy || 'public',
+          };
+          
+          setUserPreferences(mappedPrefs);
+          setPreferencesLoaded(true);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load preferences from backend:', error);
+    }
+  }, [API_BASE]);
+
+  // Save preferences to backend
+  const savePreferencesToBackend = useCallback(async (userId, prefs) => {
+    if (!userId) return;
+    
+    try {
+      // Map frontend format to backend format
+      const backendPrefs = {
+        unit: prefs.unit,
+        activity_type: prefs.activityType,
+        territory_color: prefs.territoryColor,
+        theme: prefs.theme,
+        notifications_enabled: prefs.notificationsEnabled,
+        privacy: prefs.privacy,
+      };
+      
+      await fetch(`${API_BASE}/api/users/${userId}/preferences`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(backendPrefs),
+      });
+    } catch (error) {
+      console.error('Failed to save preferences to backend:', error);
+    }
+  }, [API_BASE]);
 
   // IMMEDIATE GPS TRACKING - Start watching position on mount (Blue Dot always visible)
   useEffect(() => {

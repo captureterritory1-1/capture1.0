@@ -164,15 +164,18 @@ const createBrandLogoIcon = (territory) => {
   });
 };
 
-// Map controller component - follows user when tracking + handles flyTo + bounds
+// Map controller component - GLOBAL navigation with Bannerghatta as start
 const MapController = ({ center, isTracking, shouldCenter, flyToTarget, onFlyComplete }) => {
   const map = useMap();
   
-  // Set map bounds to Bannerghatta Road area
+  // Configure global map settings (NO bounds restriction)
   useEffect(() => {
-    map.setMaxBounds(MAP_CONFIG.bounds);
+    // Enable global navigation
     map.setMinZoom(MAP_CONFIG.minZoom);
     map.setMaxZoom(MAP_CONFIG.maxZoom);
+    
+    // Enable world wrapping for continuous horizontal scrolling
+    map.options.worldCopyJump = true;
     
     // Disable double-click zoom (we use it for scratch cards)
     map.doubleClickZoom.disable();
@@ -199,7 +202,7 @@ const MapController = ({ center, isTracking, shouldCenter, flyToTarget, onFlyCom
   return null;
 };
 
-// Re-center button component that uses the map
+// Re-center button - fly to user's current location
 const RecenterButton = ({ userPosition, onClick }) => {
   const map = useMap();
   

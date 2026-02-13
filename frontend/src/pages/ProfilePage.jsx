@@ -34,6 +34,44 @@ const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { 
+    getTotalStats, 
+    userPreferences, 
+    userTerritories, 
+    territoryColors, 
+    updatePreferences,
+    loadPreferencesFromBackend 
+  } = useGame();
+  const { isDarkMode, toggleTheme, setTheme } = useTheme();
+  const stats = getTotalStats();
+  
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // Load preferences from backend on mount
+  useEffect(() => {
+    if (user?.id) {
+      loadPreferencesFromBackend(user.id);
+    }
+  }, [user?.id, loadPreferencesFromBackend]);
+
+  // Sync theme from preferences when loaded
+  useEffect(() => {
+    if (userPreferences.theme) {
+      const shouldBeDark = userPreferences.theme === 'dark';
+      if (isDarkMode !== shouldBeDark) {
+        setTheme(shouldBeDark);
+      }
+    }
+  }, [userPreferences.theme, isDarkMode, setTheme]);
+
+const ProfilePage = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { getTotalStats, userPreferences, userTerritories, territoryColors, updatePreferences } = useGame();
   const { isDarkMode, toggleTheme } = useTheme();
   const stats = getTotalStats();

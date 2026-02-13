@@ -69,11 +69,12 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Full-screen Background Image */}
+      {/* Full-screen Background Image - Centered on the runner */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-no-repeat"
         style={{ 
           backgroundImage: `url(${RUNNER_BG})`,
+          backgroundPosition: 'center 30%', // Center horizontally, slightly above center vertically
         }}
       />
       

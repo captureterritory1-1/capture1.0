@@ -75,7 +75,11 @@ agenthub/agents/youtube/db
 
 # Build caches
 .cache/
+.ruff_cache/
+.pytest_cache/
+
+# Emergent platform files
+.emergent/
 
 # Mobile development
-android-sdk/ frontend/node_modules/.cache/default-development/0.pack
-frontend/node_modules/.cache/default-development/0.pack
+android-sdk/
